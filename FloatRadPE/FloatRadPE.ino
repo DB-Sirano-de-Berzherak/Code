@@ -1,3 +1,7 @@
+#include <SPI.h>                                         
+#include <nRF24L01.h>                                     
+#include <RF24.h> 
+
 #include <Wire.h>
 #include <TroykaIMU.h>
 
@@ -6,14 +10,16 @@
 #include <utility/imumaths.h>
 
 #include <TroykaGPS.h>
-GPS gps(Serial1);
 
+
+RF24           radio(9, 10); 
 
 Accelerometer accel;
 Barometer barometer;
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55,0x29);
 
+GPS gps(Serial1);
 
 float one  [8];
 float two  [8];
@@ -82,6 +88,12 @@ void BAR()
 
 void setup()
 {
+  radio.begin();                                       
+  radio.setChannel(7);                           //2,407 ГГц      
+  radio.setDataRate     (RF24_1MBPS);                   
+  radio.setPALevel      (RF24_PA_HIGH);               
+  radio.openWritingPipe (0x1234567890LL);       
+  
   Serial.begin(9600);
 
   one  [0] = 10000;
@@ -111,19 +123,23 @@ void setup()
 void loop()
 {
   i++;
-  AXYZ();
-  BAR();
-  GXYZ();
-  NOMBER(i);
-  LaLo();
-  Time();
   
-  for(int y=0; y<=5; y++){
+  NOMBER(i);
+  Time();
+  BAR();
+  LaLo();
+  radio.write(&one, sizeof(one));
+
+  GXYZ();
+  AXYZ();
+  radio.write(&two, sizeof(two)); 
+  Serial.println("OK");
+  /*for(int y=0; y<=5; y++){
     Serial.print(one[y]); Serial.print("\t");}
   Serial.println();
   
   for(int y=0; y<=6; y++){
     Serial.print(two[y]); Serial.print("\t");}
-  Serial.println();
+  Serial.println();*/
   //delay(100);
 }
