@@ -1,14 +1,16 @@
 import processing.serial.*;
 import toxi.geom.*;
 import toxi.processing.*;
- 
+
+float R = 6731000;
+float pi = 3.14159265359;
+
+PImage img;
 Serial port;                         
- 
 String message;
  
 float[] q = new float[4];
 Quaternion quat = new Quaternion(1, 0, 0, 0);
-// new line character in ASCII
 int newLine = 13; 
 String [] massQ = new String [4];
 float[] ypr = new float[3];
@@ -24,28 +26,53 @@ float yaw = 0;
 int PH = 1;
 int COC = 0;
 int CAC = 0;
+float latitude = 56.40252332;
+float longitude = 41.00058174; 
+float x;
+float y;
+float x_map;
+float y_map;
 
 void setup() 
 {
     size(1880, 1000, P3D);
     port = new Serial(this, "COM5", 115200);
+    img = loadImage("gps_map.jpg");
     delay(1000);
+    degreese_to_xy();
+    println(x);
+    println(y);
 }
 
 void draw()
 {
     background(0);
-    //GPS
-    fill(255);
-    rect(50, 500, 400, 400); 
-    fill(0);
-    rect(53, 503, 394, 394);
     
-    //ИСО
+    //GPS
+    image(img, 990, 50, 400, 300);
+    fill(255, 0, 0);
+    //x_map = 
+    //y_map =
+    //ellipse(990, 50, 5, 5);
+    //ellipse(1390, 350, 5, 5);
+    
     fill(255);
-    rect(990, 480, 880, 420);
+    rect(1460, 230, 370, 120);
     fill(0);
-    rect(993, 483, 874, 414);
+    rect(1463, 233, 364, 114);
+    
+    fill(255);
+    textSize(32);
+    text("Широта: "+latitude, 1480, 280);
+    text("Долгота: "+longitude, 1480, 325);
+    
+    
+    //ИСО  
+    fill(255);
+    rect(990, 400, 840, 500);
+    fill(0);
+    rect(993, 403, 834, 494);
+    
     
     //акселерометр
     //ось x
@@ -53,6 +80,10 @@ void draw()
     rect(500, 50, 430, 240);
     fill(0);
     rect(503, 53, 424, 234);
+    fill(255);
+    textSize(15);
+    text("Ускорение по оси x от времени", 600, 310);
+    
     //шкала
     fill(255);
     rect(542, 170, 360, 2);
@@ -68,114 +99,112 @@ void draw()
     rect(545, 270, 360, 2);
     
     fill(255);
-    textSize(10);
-    text("8", 530, 75);
-    text("6", 530, 100);
-    text("4", 530, 125);
-    text("2", 530, 150);
-    text("0", 530, 175);
-    text("-2", 525, 200);
-    text("-4", 525, 225);
-    text("-6", 525, 250);
-    text("-8", 525, 275);
+    textSize(15);
+    text("8", 525, 80);
+    text("4", 525, 125);
+    text("0", 525, 175);
+    text("-4", 515, 225);
+    text("-8", 515, 275);
     
     
     //ось y
     fill(255);
-    rect(500, 360, 430, 240);
+    rect(500, 345, 430, 240);
     fill(0);
-    rect(503, 363, 424, 234);
+    rect(503, 348, 424, 234);
+    fill(255);
+    textSize(15);
+    text("Ускорение по оси y от времени", 600, 605);
     
     //шкала
     fill(255);
-    rect(542, 480, 360, 2);
-    rect(543, 380, 2, 202);
+    rect(542, 465, 360, 2);
+    rect(543, 365, 2, 202);
     fill(100);
-    rect(545, 380, 360, 2);
-    rect(545, 405, 360, 2);
-    rect(545, 430, 360, 2);
-    rect(545, 455, 360, 2);
-    rect(545, 505, 360, 2);
-    rect(545, 530, 360, 2);
-    rect(545, 555, 360, 2);
-    rect(545, 580, 360, 2);
+    rect(545, 365, 360, 2);
+    rect(545, 390, 360, 2);
+    rect(545, 415, 360, 2);
+    rect(545, 440, 360, 2);
+    rect(545, 490, 360, 2);
+    rect(545, 515, 360, 2);
+    rect(545, 540, 360, 2);
+    rect(545, 565, 360, 2);
     
     fill(255);
-    textSize(10);
-    text("8", 530, 385);
-    text("6", 530, 410);
-    text("4", 530, 435);
-    text("2", 530, 460);
-    text("0", 530, 485);
-    text("-2", 525, 510);
-    text("-4", 525, 535);
-    text("-6", 525, 560);
-    text("-8", 525, 585);
+    textSize(15);
+    text("8", 525, 375);
+    text("4", 525, 420);
+    text("0", 525, 470);
+    text("-4", 515, 520);
+    text("-8", 515, 570); 
     
     //ось z
     fill(255);
-    rect(500, 660, 430, 240);
+    rect(500, 640, 430, 240);
     fill(0);
-    rect(503, 663, 424, 234);
-    
+    rect(503, 643, 424, 234);
     fill(255);
-    rect(542, 780, 360, 2);
-    rect(543, 680, 2, 202);
+    textSize(15);
+    text("Ускорение по оси z от времени", 600, 900);
+    
+    //шкала
+    fill(255);
+    rect(542, 760, 360, 2);
+    rect(543, 660, 2, 202);
     fill(100);
-    rect(545, 680, 360, 2);
-    rect(545, 705, 360, 2);
-    rect(545, 730, 360, 2);
-    rect(545, 755, 360, 2);
-    rect(545, 805, 360, 2);
-    rect(545, 830, 360, 2);
-    rect(545, 855, 360, 2);
-    rect(545, 880, 360, 2);
+    rect(545, 660, 360, 2);
+    rect(545, 685, 360, 2);
+    rect(545, 710, 360, 2);
+    rect(545, 735, 360, 2);
+    rect(545, 785, 360, 2);
+    rect(545, 810, 360, 2);
+    rect(545, 835, 360, 2);
+    rect(545, 860, 360, 2);
     
     fill(255);
-    textSize(10);
-    text("8", 530, 685);
-    text("6", 530, 705);
-    text("4", 530, 735);
-    text("2", 530, 760);
-    text("0", 530, 785);
-    text("-2", 525, 810);
-    text("-4", 525, 835);
-    text("-6", 525, 860);
-    text("-8", 525, 885);
+    textSize(15);
+    text("8", 525, 670);
+    text("4", 525, 715);
+    text("0", 525, 765);
+    text("-4", 515, 815);
+    text("-8", 515, 865); 
     
     
     textSize(32);
     
-    //Блок Время
+    //Блок Время   
     fill(255);
-    rect(990, 50, 370, 70);
+    rect(50, 440, 400, 70);
     fill(0);
-    rect(993, 53, 364, 64);
+    rect(53, 443, 394, 64);
     
     fill(255);
-    text("Время: "+time, 1010, 95);
+    text("Время: "+time, 70, 485);
     
-    //Блок температура, давление, высот
+    
+    //Блок температура, давление, высоты
     fill(255);
-    rect(990, 250, 370, 160);
+    rect(50, 740, 400, 160);
     fill(0);
-    rect(993, 253, 364, 154);
+    rect(53, 743, 394, 154);
     
     fill(255);
-    text("Температура: "+tempreture, 1010, 295);
-    text("Давление: "+pressure, 1010, 335);
-    text("Высота: "+altitude, 1010, 375);
+    text("Температура: "+tempreture, 70, 785);
+    text("Давление: "+pressure, 70, 830);
+    text("Высота: "+altitude, 70, 875);
+    
     
     //Блок углы ориентации
     fill(255);
-    rect(1460, 250, 370, 160);
+    rect(50, 545, 400, 160);
     fill(0);
-    rect(1463, 253, 364, 154);
+    rect(53, 548, 394, 154);
     
+    YawPitchRoll();
     fill(255);
-    text("Тангаж: "+pitch, 1480, 295);
-    text("Крен: "+yaw, 1480, 335);
-    text("Рыскание: "+roll, 1480, 375);
+    text("Тангаж: "+pitch, 70, 590);
+    text("Крен: "+yaw, 70, 635);
+    text("Рыскание: "+roll, 70, 680); 
     
     
     //Блок состояния аппарата
@@ -198,16 +227,17 @@ void draw()
       fill(0, 255, 0);
     text("САС сработала", 1480, 175); 
     
+    
     //НИСО
     fill(255);
     rect(50, 50, 400, 2);
-    rect(50, 50, 2, 400);
-    rect(50, 450, 400, 2);
-    rect(450, 50, 2, 400);
+    rect(50, 50, 2, 350);
+    rect(50, 400, 400, 2);
+    rect(450, 50, 2, 350);
    
     //Обработка углов ориентации
     serialEvent();
-    translate(width / 7, height / 4);
+    translate(width / 7.5, height / 5);
     pushMatrix();
     float[] axis = quat.toAxisAngle();
     rotate(axis[0], axis[2], axis[3], axis[1]);
@@ -309,3 +339,20 @@ void drawQuards()
     vertex(-2, -30, 98); vertex(2, -30, 98); vertex(2,   0, 70); vertex(-2,   0, 70);
     endShape();
 }
+
+void YawPitchRoll() 
+{
+    ypr[0] = atan2(2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[0] * q[0] + 2 * q[1] * q[1] - 1)*57.2;
+    ypr[1] = atan2(2 * q[2] * q[3] - 2 * q[0] * q[1], 2 * q[0] * q[0] + 2 * q[3] * q[3] - 1)*57.2;
+    ypr[2] = -atan2(2.0f * (q[0] * q[2] - q[1] * q[3]), 1.0f - 2.0f * (q[2] * q[2] + q[1] * q[1]))*57.2;
+   
+    pitch = ypr[1];
+    yaw = ypr[0];
+    roll = ypr[2];
+}
+
+void degreese_to_xy()
+{
+    x = longitude * pi / 180 * R;
+    y = R * log(tan(pi / 4 + (latitude * pi / 180) / 2));
+} 
