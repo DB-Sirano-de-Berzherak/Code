@@ -27,7 +27,9 @@ float gx, gy, gz, ax, ay, az, mx, my, mz;
  
 // получаемые углы ориентации (Эйлера)
 float yaw, pitch, roll;
- 
+//номер пакета
+int number = 0;
+
 // переменная для хранения частоты выборок фильтра
 float fps = 100;
  
@@ -78,6 +80,7 @@ void loop()
   filter.setKoeff(fps, BETA);
   // обновляем входные данные в фильтр
   filter.update(gx, gy, gz, ax, ay, az, mx, my, mz);
+  number = number + 1;
   if (Serial.available() > 0) {
     int val = Serial.read();
     // если пришёл символ 's'
@@ -85,6 +88,8 @@ void loop()
       float q0, q1, q2, q3;
       filter.readQuaternions(&q0, &q1, &q2, &q3);
       // выводим кватернионы в serial-порт
+      Serial.print(number);
+      Serial.print(",");
       Serial.print(q0);
       Serial.print(",");
       Serial.print(q1);
