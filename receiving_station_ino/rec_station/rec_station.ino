@@ -78,7 +78,6 @@ void loop()
   filter.setKoeff(fps, BETA);
   // обновляем входные данные в фильтр
   filter.update(gx, gy, gz, ax, ay, az, mx, my, mz);
- 
   if (Serial.available() > 0) {
     int val = Serial.read();
     // если пришёл символ 's'

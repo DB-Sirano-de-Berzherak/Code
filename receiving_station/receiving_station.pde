@@ -55,6 +55,7 @@ void draw_process()
     //обновление изменения времени
     time_prev = time;
     //получаем данные
+    port.write('s');
     serialEvent();
     
     //выводящиеся на экран данные переводим в формат с двумя знаками после запятой
@@ -253,6 +254,7 @@ String char_longitude;
                   //ПОЛУЧЕНИЕ ДАННЫХ ИЗ COM ПОРТА
 void serialEvent() 
 { 
+    
     message = port.readStringUntil(newLine);
     
     if (message != null) 
