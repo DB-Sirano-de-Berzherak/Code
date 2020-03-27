@@ -2,48 +2,53 @@ import processing.serial.*;
 import toxi.geom.*;
 import toxi.processing.*;
 
-
-//для отображения НИСО раздокументируйте код на строках 863 - 869
-
-
 void setup() 
 {
     //создаём окно
     size(1880, 1000, P3D);
     //порт
     port = new Serial(this, "COM5", 115200);
+    delay(1000);
     //подгружаем картинку карты
     img = loadImage("gps_map.jpg");
-    delay(1000);
+    
+    dataFile = createWriter("dataLaunch.txt");
     
     //заполнить массивы для карты начальной координатой
     int i;
-    for(i = 0; i < 10800; i++)
+    for(i = 0; i < 360000; i++)
     {
         arr_x_map[i] = 990;           ///КООРДИНАТЫ МЕСТА ЗАПУСКА УКАЗАТЬ
         arr_y_map[i] = 50;            ///КООРДИНАТЫ МЕСТА ЗАПУСКА УКАЗАТЬ
     }
     
     //заполнить маассивы координат траектории 0
-    for(i = 0; i < 10000000; i++)
+    for(i = 0; i < 360000; i++)
     {
         arr_sx[i] = 0;
         arr_sy[i] = 0;
         arr_sz[i] = 0;
     }
+    delay(1000);
 }
 
 void draw()
 {
     if(start == 0)
+    {
         //рисовать окно начала программы
         Start();
+    }
     else if(finish == 1)
+    {
         //рисовать окно окончания программы
         Finish();
+    }
     else
+    {
         //рисовать обработку данных
         draw_process();
+    }
 }
 
 
@@ -96,14 +101,20 @@ void draw_process()
     //уголы управляются стрелками с клавиатуры
     translate(1335, 720, 0);
     rotateY(radians(angle_y));
-    rotateZ(radians(angle_z));
     
     //начало координат посредине графика
     translate(120, 0, 120);
-    //посчитать следующие координаты
-    calculateTrajectory();
-    //отрисовать траекторию
-    drawTrajectory();
+    //уменьшить рамер графика (потому что продолбалась с начальным размером)
+    scale(0.95);
+    //считать и рисовать траекторию только если ускорение по модулю больше, чем g на 0.2 
+    //(условное число, что бы обозначить, что аппарат в движении)
+    if(abs(a[2]) - 0.2 > 1)
+    {
+        //посчитать следующие координаты
+        calculateTrajectory();
+        //отрисовать траекторию
+        drawTrajectory();
+    }
     
     //переместить начало координат в начало графика
     translate(-120, 0, -120);
@@ -119,11 +130,9 @@ float R = 6731000;
 //изображение карты
 PImage img;
 //порт
-Serial port;                
-//сообщение с данными
-String message;
-//качество связи
-float connection;
+Serial port;  
+//файл с данными
+PrintWriter dataFile;
 
 //пока 0 - не обрабатывать данные (меняется нажатием ctrl)
 int start = 0;
@@ -136,21 +145,33 @@ Quaternion quat = new Quaternion(1, 0, 0, 0);
 //значение конца строки (В ASCII)
 int newLine = 13; 
 //массив принятых данных
-String [] mass = new String [10];
+String [] mass = new String [11];
+//сообщение с данными
+String message;
 //массив углов ориентации
 float[] ypr = new float[3];
 //массив углов ускорений по 3 осям
 
+//номер получаемого пакета
+float pack_number = 1;
+//номер первго пришедшего пакета в момент начала обработки данных
+float start_pack = 1;
+//счётчик пришедших пакетов
+int pack_cnt = 0;
+//качество связи
+float connection;
 //время
 float time = 0;
 //предыдущее отправленное время
 float time_prev = 0;
+//изменение времени
+float delta_time = 0;
 //температура
 float tempreture = 22.45;
 //давление предыдущее (для изменения давления)
-float pressure2 = 994.22;
+float pressure2 = 1006.76;
 //давление текущее
-float pressure = 994.22;
+float pressure = 1006.76;
 //высота
 float altitude = 0;
 //изменение высоты
@@ -163,7 +184,6 @@ float yaw = 0;
 
 //углы вращения графика траектории
 float angle_y = 0;
-float angle_z = 0;
 
 //ускорение аппарата по 3 осям
 float[] a = new float[3];
@@ -172,13 +192,13 @@ float ay = 0;
 float az = 0;
 
 //скорость аппарата
-float vx = 10;
-float vy = 10;
+float vx = 0;
+float vy = 0;
 float vz = 0;
 
 //скорость предыдущая
-float vx_prev = 10;
-float vy_prev = 10;
+float vx_prev = 0;
+float vy_prev = 0;
 float vz_prev = 0;
 
 //расстояние, пройденное за малый промежуток времени
@@ -187,9 +207,9 @@ float sy = 0;
 float sz = 0;
 
 //массив координат аппарата
-float[] arr_sx = new float[10000000];
-float[] arr_sy = new float[10000000];
-float[] arr_sz = new float[10000000];
+float[] arr_sx = new float[360000];
+float[] arr_sy = new float[360000];
+float[] arr_sz = new float[360000];
 //счётчик для массивов координат
 int trajectory_cnt = 0;
 
@@ -203,8 +223,8 @@ int CAC = 0;
 float latitude = 56.40845021;
 float longitude = 40.98048019; 
 //массив положений на карте
-float arr_x_map[] = new float[10800];
-float arr_y_map[] = new float[10800];
+float arr_x_map[] = new float[360000];
+float arr_y_map[] = new float[360000];
 int path_cnt = 0;
 //прямоугольные координаты
 float x;
@@ -250,6 +270,7 @@ String char_temperture;
 String char_pressure;
 String char_latitude;
 String char_longitude;
+String char_connection;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                   //ПОЛУЧЕНИЕ ДАННЫХ ИЗ COM ПОРТА
 void serialEvent() 
@@ -260,17 +281,26 @@ void serialEvent()
     if (message != null) 
     {
       mass = split(message, ",");
-      q[0] = float(mass[0]);
-      q[1] = float(mass[1]);
-      q[2] = float(mass[2]);
-      q[3] = float(mass[3]);
+      //запись данных в файл
+      dataFile.print(message);                                                                  ///Записывать ВСЕ данные в файл
+      //номер пришедшего пакета
+      pack_number = float(mass[0]);
+      //задать номер "стартового пакета"
+      if(pack_cnt == 1)
+        start_pack = pack_number;
+      q[0] = float(mass[1]);
+      q[1] = float(mass[2]);
+      q[2] = float(mass[3]);
+      q[3] = float(mass[4]);
       a[0] = float(mass[4]);
-      a[1] = float(mass[5]);
-      a[2] = float(mass[6]);
-      time = float(mass[7]);
-      pressure = float(mass[8]);
-      tempreture = float(mass[9]);
+      a[1] = float(mass[6]);
+      a[2] = float(mass[7]);
+      time = float(mass[8]);
+      pressure = float(mass[9]);
+      tempreture = float(mass[10]);
       time = time / 1000;
+      //обновить счётчик пришедших пакетов
+      pack_cnt += 1;
     }
     quat.set(q[0], q[1], q[2], q[3]);
  
@@ -291,6 +321,7 @@ void format_2digit()
     char_temperture = String.format("%.2f", tempreture);
     //давление перевести из милиБаров в Паскали
     char_pressure = String.format("%.2f", pressure * 100);
+    char_connection = String.format("%.2f", connection);
     //У широты и долготы знаки не отбрасываются. Нужно для того, что бы данные выводились с запятой (а не точкой)
     char_longitude = String.format("%.5f", longitude);
     char_latitude = String.format("%.6f", latitude);
@@ -313,6 +344,8 @@ void Start()
 
 void Finish()
 {
+    dataFile.flush(); 
+    dataFile.close();
     //режим окна после сохранения данных
     background(0);
     fill(255);
@@ -332,10 +365,12 @@ void data()
     rect(53, 653, 394, 244);
     //вычислить высоту
     calculate_altitude();
-    //вывести значения температуры, давления, высоты
+    //посчитать качество связи
+    connection = pack_cnt / (pack_number - start_pack);
+    //вывести значения температуры, давления, высоты, качества связи
     fill(255);
     text("Время: "+char_time, 70, 695);
-    text("Качество связи: "+connection, 70, 740);
+    text("Качество связи: "+char_connection, 70, 740);
     text("Температура: "+char_temperture, 70, 785);
     text("Давление: "+char_pressure, 70, 830);
     text("Высота: "+char_altitude, 70, 875);
@@ -758,10 +793,15 @@ void drawPath()
     }
 }
 
+void GPS()
+{
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                     //БЛОК ФУНККЦИЙ НИСО
 void drawCylinder() 
 {
+    stroke(0);
     float topRadius = 66;
     float bottomRadius = 66;
     float tall = 200;
@@ -862,13 +902,13 @@ void NISO()
     
     //Отрисовка модели в НИСО
     translate(width / 7.5, height / 4.5);
-    /*pushMatrix();
+    pushMatrix();
     float[] axis = quat.toAxisAngle();
     rotate(axis[0], axis[2], axis[3], axis[1]);
     drawCylinder();
     drawQuards();
     popMatrix();
-    port.write('s'); */
+    port.write('s');
     translate(-width / 7.5, -height / 4.5);
 }
 
@@ -959,48 +999,48 @@ void calculateTrajectory()
 {
     //преревод ускорения из g в м/с^2
     ax = a[0] * 9.816;
-    ay = a[1] * 9.816;
-    az = a[2] * 9.816;
+    ay = a[2] * 9.816;
+    az = a[1] * 9.816;
     //посчитать изменение времени
-    float delta_time = time - time_prev;
+    delta_time = time - time_prev;
     //если это не первый расчёт, взять значение предыдущих координат. Иначе взять 0
     if(trajectory_cnt != 0)
     {
         vx = vx_prev + ax * delta_time;
         sx = arr_sx[trajectory_cnt - 1] + vx * delta_time + ax * delta_time * delta_time / 2;
         vx_prev = vx;
-        arr_sx[trajectory_cnt] = sx;
-        
+        arr_sx[trajectory_cnt] = sx / 10;
+            
         vy = vy_prev + ay * delta_time;
-        sy = arr_sy[trajectory_cnt - 1] + vy * delta_time + ay * delta_time * delta_time / 2;
+        sy = arr_sy[trajectory_cnt - 1] - vy * delta_time - ay * delta_time * delta_time / 2;
         vy_prev = vy;
-        arr_sy[trajectory_cnt] = sy;
-        
+        arr_sy[trajectory_cnt] = sy / 10;
+            
         vz = vz_prev + az * delta_time;
         sz = arr_sz[trajectory_cnt - 1] + vz * delta_time + az * delta_time * delta_time / 2;
         vz_prev = vz;
-        arr_sz[trajectory_cnt] = sz;
-    }
-    else
-    {
-        vx = vx_prev + a[0] * delta_time;
-        sx = vx * delta_time + a[0] * delta_time * delta_time / 2;
+        arr_sz[trajectory_cnt] = sz / 10;
+     }
+     else
+     {
+        vx = vx_prev + ax * delta_time;
+        sx = vx * delta_time + ax * delta_time * delta_time / 2;
         vx_prev = vx;
-        arr_sx[trajectory_cnt] = sx;
-        
-        vy = vy_prev + a[1] * delta_time;
-        sy = vy * delta_time + a[1] * delta_time * delta_time / 2;
+        arr_sx[trajectory_cnt] = sx / 10;
+            
+        vy = vy_prev + ay * delta_time;
+        sy = -vy * delta_time - ay * delta_time * delta_time / 2;
         vy_prev = vy;
-        arr_sy[trajectory_cnt] = sy;
-        
-        vz = vz_prev + a[2] * delta_time;
-        sz = vz * delta_time + a[2] * delta_time * delta_time / 2;
+        arr_sy[trajectory_cnt] = sy / 10;
+            
+        vz = vz_prev + az * delta_time;
+        sz = vz * delta_time + az * delta_time * delta_time / 2;
         vz_prev = vz;
-        arr_sz[trajectory_cnt] = sz;
+        arr_sz[trajectory_cnt] = sz / 10;
     }
     //увеличить счётчик тректории
     trajectory_cnt++;
-    if(trajectory_cnt == 10000000)
+    if(trajectory_cnt == 360000)
       trajectory_cnt = 0;
 }
 
@@ -1026,10 +1066,7 @@ void keyPressed()
         angle_y -= 10;
       if (keyCode == LEFT)
         angle_y += 10;
-      if (keyCode == UP) 
-        angle_z -= 10;
-      if (keyCode == DOWN)
-        angle_z += 10;
+        
       //кнопки старта и финиша
       if(keyCode == CONTROL)
         start = 1;
