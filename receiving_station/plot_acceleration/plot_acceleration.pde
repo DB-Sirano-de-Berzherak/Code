@@ -2,6 +2,14 @@ import processing.serial.*;
 import toxi.geom.*;
 import toxi.processing.*;
 
+//ускорение по оси x
+float ax = 0;
+//ускорение по оси y
+float ay = 0;
+//ускорение по оси z
+float az = 0;
+//время
+float time = 0;
 //массив ускорений по оси x
 float[] arr_ax = new float[360000];
 //массив ускорений по оси y
@@ -80,19 +88,22 @@ void parseFile()
         {
             String[] pieces = split(line, ",");
             //если пришли все данные целые (11 значений)
-            if(pieces.length == 11)
+            if(int(pieces[0]) % 2 == 1 && pieces.length == 8)
             {
-              float ax = float(pieces[5]) * 9.816;
-              float ay = float(pieces[6]) * 9.816;
-              float az = float(pieces[7]) * 9.816;
-              float time = float(pieces[8]) / 1000;
+              ax = float(pieces[5]) * 9.816;
+              ay = float(pieces[6]) * 9.816;
+              az = float(pieces[7]) * 9.816;
+            }
+            if(int(pieces[0]) % 2 == 0 && pieces.length >= 2)
+            {
+                time = float(pieces[1]) / 1000;
+            }
               arr_ax[arr_cnt] = ax;
               arr_ay[arr_cnt] = ay;
               arr_az[arr_cnt] = az;
               arr_time[arr_cnt] = time;
               arr_cnt += 1;
               cnt_max = arr_cnt;
-            }
         }
         reader.close();
     } 
@@ -152,7 +163,7 @@ void draw_axis()
     for(i = 750; i >= 100; i-=50)
     {
         line(150, i, 1450, i);
-        text(String.format("%.2f",max_a - (max_a - min_a) * (i - 100) / 650), 100, i + 5);
+        text(String.format("%.2f",max_a - (max_a - min_a) * (i - 100) / 650), 85, i + 5);
     }
     
     for(i = 1450; i >= 100; i-=100)
@@ -181,7 +192,7 @@ void draw_axis()
     textSize(20);
     text("Время, с", 750, 840);
     
-    translate(80, 500);
+    translate(65, 500);
     rotate(-PI/2);
     text("Ускорение, м/с^2", 0, 0);
 }
@@ -229,6 +240,7 @@ void draw_plot()
 
 void scope()
 {
+    noCursor();
     //вывести значения ускорения и времени
     textSize(35);
     stroke(255);
@@ -240,6 +252,8 @@ void scope()
         //нарисовать квадрат
         fill(0, 0, 0, 255);
         rect(mouseX - 10, mouseY - 10, 20, 20);
+        line(mouseX - 10, mouseY, mouseX + 10, mouseY);
+        line(mouseX, mouseY - 10, mouseX, mouseY + 10);
         //нарисовать к нему оси
         int i;
         stroke(150);

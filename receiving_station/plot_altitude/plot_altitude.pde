@@ -41,9 +41,9 @@ float scope_time;
 //высота из функции scope
 float scope_altitude;
 //давление
-float pressure = 979.86;
+float pressure = 990;
 //предыдущее давление
-float prev_pressure = 979.86;
+float prev_pressure = 990;
 
 void setup()
 {
@@ -86,14 +86,14 @@ void parseFile()
         {
             String[] pieces = split(line, ",");
             //если пришли все данные целые (11 значений)
-            if(pieces.length == 11)
+            if(int(pieces[0]) % 2 == 0 && pieces.length >= 4)
             {
               //считать температуру
-              float tempreture = float(pieces[10]); 
+              float tempreture = float(pieces[2]); 
               //считать время
-              float time = float(pieces[8]) / 1000;
+              float time = float(pieces[1]) / 1000;
               //считать давление
-              pressure = float(pieces[9]);
+              pressure = float(pieces[3]);
               //изменение высоты по барометрической формуле
               delta_altitude = 18400 * (1 + 0.003665 * tempreture) * log(pressure / prev_pressure);
               //высота
@@ -153,7 +153,7 @@ void draw_axis()
     for(i = 750; i >= 100; i-=50)
     {
         line(150, i, 1450, i);
-        text(String.format("%.2f", max_altitude - (DELTA_altitude) * (i - 100) / 650), 100, i + 5);
+        text(String.format("%.2f", max_altitude - (DELTA_altitude) * (i - 100) / 650), 80, i + 5);
     }
     
     for(i = 1450; i >= 100; i-=100)
@@ -169,15 +169,14 @@ void draw_axis()
     textSize(20);
     text("Время, с", 750, 840);
     
-    translate(60, 500);
+    translate(40, 500);
     rotate(-PI/2);
     text("Высота, м", 0, 0);
 }
 
 void draw_plot()
 {
-    //рисовать график
-    
+    //рисовать график 
     time_x_prev = 150 + (arr_time[0] - min_time) * 1300 / delta_time;
     altitude_y_prev = 750 - (arr_altitude[0] - min_altitude) * 650 / DELTA_altitude;
     int i;
@@ -194,6 +193,7 @@ void draw_plot()
 
 void scope()
 {
+    noCursor();
     //выводить значения в данной точке
     fill(255);
     textSize(35);
@@ -206,6 +206,8 @@ void scope()
         //рисовать прямоугольник прозрачный
         fill(0, 0, 0, 255);
         rect(mouseX - 10, mouseY - 10, 20, 20);
+        line(mouseX - 10, mouseY, mouseX + 10, mouseY);
+        line(mouseX, mouseY - 10, mouseX, mouseY + 10);
         //рисовать оси к нему
         int i;
         stroke(150);

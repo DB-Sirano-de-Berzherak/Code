@@ -78,14 +78,14 @@ void parseFile()
         {
             String[] pieces = split(line, ",");
             //если пришли все данные целые (11 значений)
-            if(pieces.length == 11)
+            if(int(pieces[0]) % 2 == 0 && pieces.length >= 4)
             {
               //считать температуру
-              float tempreture = float(pieces[9]) * 100; 
+              float pressure = float(pieces[3]); 
               //считать время
-              float time = float(pieces[8]) / 1000;
-              //добавить температуру в массив давления
-              arr_pressure[arr_cnt] = tempreture;
+              float time = float(pieces[1]) / 1000;
+              //добавить температуру в массив температур
+              arr_pressure[arr_cnt] = pressure;
               //добавть время в массив времени
               arr_time[arr_cnt] = time;
               //увеличить счётчик
@@ -178,6 +178,7 @@ void draw_plot()
 
 void scope()
 {
+    noCursor();
     //выводить значения в данной точке
     fill(255);
     textSize(35);
@@ -190,6 +191,8 @@ void scope()
         //рисовать прямоугольник прозрачный
         fill(0, 0, 0, 255);
         rect(mouseX - 10, mouseY - 10, 20, 20);
+        line(mouseX - 10, mouseY, mouseX + 10, mouseY);
+        line(mouseX, mouseY - 10, mouseX, mouseY + 10);
         //рисовать оси к нему
         int i;
         stroke(150);
