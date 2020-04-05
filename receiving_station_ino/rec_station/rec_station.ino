@@ -84,31 +84,60 @@ void loop()
   if (Serial.available() > 0) {
     int val = Serial.read();
     // если пришёл символ 's'
-    if (val == 's') {
-      float q0, q1, q2, q3;
-      filter.readQuaternions(&q0, &q1, &q2, &q3);
-      // выводим кватернионы в serial-порт
-      Serial.print(number);
-      Serial.print(",");
-      Serial.print(q0);
-      Serial.print(",");
-      Serial.print(q1);
-      Serial.print(",");
-      Serial.print(q2);
-      Serial.print(",");
-      Serial.print(q3);
-      Serial.print(",");
-      Serial.print(ax);
-      Serial.print(",");
-      Serial.print(ay);
-      Serial.print(",");
-      Serial.print(az);
-      Serial.print(",");
-      Serial.print(Time);
-      Serial.print(",");
-      Serial.print(barometer.readPressureMillibars());
-      Serial.print(",");
-      Serial.println(barometer.readTemperatureC());
+    if (val == 's') 
+    {
+          float q0, q1, q2, q3;
+          filter.readQuaternions(&q0, &q1, &q2, &q3);
+          // выводим кватернионы в serial-порт
+          if(number % 2 == 1)
+          {
+              Serial.print(number);
+              Serial.print(",");
+              Serial.print(q0);
+              Serial.print(",");
+              Serial.print(q1);
+              Serial.print(",");
+              Serial.print(q2);
+              Serial.print(",");
+              Serial.print(q3);
+              Serial.print(",");
+              Serial.print(ax);
+              Serial.print(",");
+              Serial.print(ay);
+              Serial.print(",");
+              Serial.println(az);
+          }
+          else
+          {
+              Serial.print(number);
+              Serial.print(",");
+              Serial.print(Time);
+              Serial.print(",");
+              Serial.print(barometer.readPressureMillibars());
+              Serial.print(",");
+              Serial.println(barometer.readTemperatureC());
+          }
+          /*Serial.print(number);
+          Serial.print(",");
+          Serial.print(q0);
+          Serial.print(",");
+          Serial.print(q1);
+          Serial.print(",");
+          Serial.print(q2);
+          Serial.print(",");
+          Serial.print(q3);
+          Serial.print(",");
+          Serial.print(ax);
+          Serial.print(",");
+          Serial.print(ay);
+          Serial.print(",");
+          Serial.print(az);
+          Serial.print(",");
+          Serial.print(Time);
+          Serial.print(",");
+          Serial.print(barometer.readPressureMillibars());
+          Serial.print(",");
+          Serial.println(barometer.readTemperatureC());*/
     }
   }
   // вычисляем затраченное время на обработку данных
