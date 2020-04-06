@@ -2,6 +2,14 @@ import processing.serial.*;
 import toxi.geom.*;
 import toxi.processing.*;
 
+//     |||||||||||||||||||||||||||||||||||||||||
+//     ||                                     ||
+//     ||     Чась получаемых данных          ||
+//     ||     закомментирована. Посмотрите    ||
+//     ||     функцию serialEvent()           ||
+//     ||                                     ||
+//     |||||||||||||||||||||||||||||||||||||||||
+
 void setup() 
 {
     //создаём окно
@@ -30,6 +38,7 @@ void setup()
         arr_sz[i] = 0;
     }
     delay(1000);
+
 }
 
 void draw()
@@ -137,7 +146,7 @@ Quaternion quat = new Quaternion(1, 0, 0, 0);
 //значение конца строки (В ASCII)
 int newLine = 13; 
 //массив принятых данных
-String [] mass = new String [11];
+String [] mass = new String [9];
 //сообщение с данными
 String message;
 //массив углов ориентации
@@ -153,7 +162,7 @@ int pack_cnt = 0;
 //качество связи
 float connection;
 //время
-float time = 0;
+float time;
 //предыдущее отправленное время
 float time_prev = 0;
 //изменение времени
@@ -161,9 +170,9 @@ float delta_time = 0;
 //температура
 float tempreture = 22.45;
 //давление предыдущее (для изменения давления)
-float pressure2 = 1006.76;
+float pressure2 = 979.86;
 //давление текущее
-float pressure = 1006.76;
+float pressure = 979.86;
 //высота
 float altitude = 0;
 //изменение высоты
@@ -174,8 +183,9 @@ float roll = 0;
 float pitch = 0;
 float yaw = 0;
 
+
 //углы вращения графика траектории
-float angle_y = 0;
+float angle_y = -70;
 
 //ускорение аппарата по 3 осям
 float[] a = new float[3];
@@ -268,11 +278,12 @@ String char_connection;
                   //ПОЛУЧЕНИЕ ДАННЫХ ИЗ COM ПОРТА
 void serialEvent() 
 { 
-    
+    //счиать сообщение
     message = port.readStringUntil(newLine);
-    
+    //если сообщение не пустое
     if (message != null) 
     {
+      //переделать строку(сообщение) в массив данных
       mass = split(message, ",");
       //запись данных в файл
       dataFile.print(message);                                                                  ///Записывать ВСЕ данные в файл
@@ -280,23 +291,39 @@ void serialEvent()
       pack_number = float(mass[0]);
       //задать номер "стартового пакета"
       if(pack_cnt == 1)
+      {
         start_pack = pack_number;
-      q[0] = float(mass[1]);
-      q[1] = float(mass[2]);
-      q[2] = float(mass[3]);
-      q[3] = float(mass[4]);
-      a[0] = float(mass[4]);
-      a[1] = float(mass[6]);
-      a[2] = float(mass[7]);
-      time = float(mass[8]);
-      pressure = float(mass[9]);
-      tempreture = float(mass[10]);
-      time = time / 1000;
-      //обновить счётчик пришедших пакетов
-      pack_cnt += 1;
+      }
+      if(mass.length == 4 || mass.length == 8)
+      {
+          //если номер пакета нечётный, считать квантернионы и ускорение
+          if(pack_number % 2 == 1)
+          {
+              q[0] = float(mass[1]);
+              q[1] = float(mass[2]);
+              q[2] = float(mass[3]);
+              q[3] = float(mass[4]);
+              a[0] = float(mass[4]);
+              a[1] = float(mass[6]);
+              a[2] = float(mass[7]);
+          }
+          //если номер пакета чётный, считать остальные данные
+          if(pack_number % 2 == 0)
+          {
+              time = float(mass[1]) / 1000;
+              pressure = float(mass[2]);
+              tempreture = float(mass[3]);
+              //PH = int(mass[4]);
+              //COC = int(mass[4]);
+              //CAC = int(mass[4]);
+              //latitude = float(mass[4]);
+              //longitude = float(mass[4]);
+          }
+          //обновить счётчик пришедших пакетов
+          pack_cnt += 1;
+      }
     }
     quat.set(q[0], q[1], q[2], q[3]);
- 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,7 +362,7 @@ void Finish()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//РАСЧЁТ И ОТОБРАЖЕНИЕ ВРЕМЕНИ, ДАВЛЕНИЯ, ВЫСОТЫ, БИНАРНЫХ СОСТОЯНИЙ АППАРАТА                                        ///сохранение данных в файл, качество связи
+            //РАСЧЁТ И ОТОБРАЖЕНИЕ ВРЕМЕНИ, ДАВЛЕНИЯ, ВЫСОТЫ, БИНАРНЫХ СОСТОЯНИЙ АППАРАТА                                        ///сохранение данных в файл, качество связи
 void data()
 {
     //нарисовать рамку для тмпературы, давления, высоты
@@ -349,6 +376,7 @@ void data()
     connection = pack_cnt / (pack_number - start_pack);
     //вывести значения температуры, давления, высоты, качества связи
     fill(255);
+    //println(char_time);
     text("Время: "+char_time, 70, 695);
     text("Качество связи: "+char_connection, 70, 740);
     text("Температура: "+char_temperture, 70, 785);
@@ -773,90 +801,39 @@ void drawPath()
     }
 }
 
-void GPS()
-{
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                     //БЛОК ФУНККЦИЙ НИСО
-void drawCylinder() 
+void cylinder(int numSegments, float h, float r)
 {
-    stroke(0);
-    float topRadius = 66;
-    float bottomRadius = 66;
-    float tall = 200;
-    int sides = 32;
-    pushMatrix();
-    translate(0, 0, -120);
-    rotateX(PI/2);
-    fill(0, 0, 255, 200);
-   
-    float angle = 0;
-    float angleIncrement = TWO_PI / sides;
-    beginShape(QUAD_STRIP);
-    for (int i = 0; i < sides + 1; ++i) {
-      vertex(topRadius*cos(angle), 0, topRadius*sin(angle));
-      vertex(bottomRadius*cos(angle), tall, bottomRadius*sin(angle));
-      angle += angleIncrement;
+    float angle = 360.0 / (float)numSegments;
+    // top 
+    beginShape();
+    for (int i=0; i <numSegments; i++) 
+    { 
+        float x = cos(radians(angle * i)) * r; 
+        float y = sin(radians(angle * i)) * r; 
+        vertex(x, y, -h/2);
+    }
+    endShape( CLOSE );
+    // side
+    beginShape( QUAD_STRIP );
+    for ( int i = 0; i < numSegments + 1; i++ ) 
+    { 
+        float x = cos(radians(angle * i)) * r; 
+        float y = sin(radians(angle * i)) * r; 
+        vertex(x, y, -h/2);
+        vertex(x, y, h/2);
     }
     endShape();
- 
-    if (topRadius != 0) {
-      angle = 0;
-      beginShape(TRIANGLE_FAN);
-   
-      vertex(0, 0, 0);
-      for (int i = 0; i < sides + 1; i++) {
-        vertex(topRadius * cos(angle), 0, topRadius * sin(angle));
-        angle += angleIncrement;
-      }
-      endShape();
+    // bottom 
+    beginShape();
+    for (int i=0; i<numSegments; i++) 
+    { 
+      float x = cos(radians(angle * i)) * r; 
+      float y = sin(radians(angle * i)) * r; 
+      vertex(x, y, h/2);
     }
-   
-    if (bottomRadius != 0) {
-      angle = 0;
-      beginShape(TRIANGLE_FAN);
-   
-      vertex(0, tall, 0);          
-      for (int i = 0; i < sides + 1; i++) {
-        vertex(bottomRadius * cos(angle), tall, bottomRadius * sin(angle));
-        angle += angleIncrement;
-      }
-     endShape();
-    }
-    popMatrix(); 
-}
- 
-void drawBody() 
-{
-    //отрисовка модели
-    fill(255, 0, 0, 200);
-    box(10, 10, 200);
-}
- 
-void drawTriangles() 
-{
-    //отрисовка модели
-    fill(0, 255, 0, 200);
-    beginShape(TRIANGLES);
-    vertex(-100,  2, 30); vertex(0,  2, -80); vertex(100,  2, 30);
-    vertex(-100, -2, 30); vertex(0, -2, -80); vertex(100, -2, 30);
-    vertex(-2, 0, 98); vertex(-2, -30, 98); vertex(-2, 0, 70);
-    vertex( 2, 0, 98); vertex( 2, -30, 98); vertex( 2, 0, 70);
-    endShape();
-}
- 
-void drawQuards() 
-{
-    //отрисовка модели
-    beginShape(QUADS);
-    vertex(-100, 2, 30); vertex(-100, -2, 30); vertex(  0, -2, -80); vertex(  0, 2, -80);
-    vertex( 100, 2, 30); vertex( 100, -2, 30); vertex(  0, -2, -80); vertex(  0, 2, -80);
-    vertex(-100, 2, 30); vertex(-100, -2, 30); vertex(100, -2,  30); vertex(100, 2,  30);
-    vertex(-2,   0, 98); vertex(2,   0, 98); vertex(2, -30, 98); vertex(-2, -30, 98);
-    vertex(-2,   0, 98); vertex(2,   0, 98); vertex(2,   0, 70); vertex(-2,   0, 70);
-    vertex(-2, -30, 98); vertex(2, -30, 98); vertex(2,   0, 70); vertex(-2,   0, 70);
-    endShape();
+    endShape( CLOSE );
 }
 
 void YawPitchRoll() 
@@ -885,8 +862,9 @@ void NISO()
     pushMatrix();
     float[] axis = quat.toAxisAngle();
     rotate(axis[0], axis[2], axis[3], axis[1]);
-    drawCylinder();
-    drawQuards();
+    stroke(0);
+    fill(0, 0, 255);
+    cylinder(10, 160, 42);
     popMatrix();
     port.write('s');
     translate(-width / 7.5, -height / 4.5);
@@ -987,23 +965,25 @@ void calculateTrajectory()
     ax = a[0] * 9.816;
     ay = a[2] * 9.816;
     az = a[1] * 9.816;
+
     //посчитать изменение времени
     delta_time = time - time_prev;
     //если это не первый расчёт, взять значение предыдущих координат. Иначе взять 0
+    //*считаем, что не маленьком промежутке времени движение равноускорено, используем соответствующие формулы
     if(trajectory_cnt != 0)
     {
         vx = vx_prev + ax * delta_time;
-        sx = arr_sx[trajectory_cnt - 1] + vx * delta_time + ax * delta_time * delta_time / 2;
+        sx = arr_sx[trajectory_cnt - 1] * 10 + vx * delta_time + ax * delta_time * delta_time / 2;
         vx_prev = vx;
         arr_sx[trajectory_cnt] = sx / 10;
             
         vy = vy_prev + ay * delta_time;
-        sy = arr_sy[trajectory_cnt - 1] - vy * delta_time - ay * delta_time * delta_time / 2;
+        sy = arr_sy[trajectory_cnt - 1] * 10 - vy * delta_time - ay * delta_time * delta_time / 2;
         vy_prev = vy;
         arr_sy[trajectory_cnt] = sy / 10;
             
         vz = vz_prev + az * delta_time;
-        sz = arr_sz[trajectory_cnt - 1] + vz * delta_time + az * delta_time * delta_time / 2;
+        sz = arr_sz[trajectory_cnt - 1] * 10 + vz * delta_time + az * delta_time * delta_time / 2;
         vz_prev = vz;
         arr_sz[trajectory_cnt] = sz / 10;
      }
@@ -1049,9 +1029,9 @@ void keyPressed()
     {
       //управление углами вращения графика
       if (keyCode == RIGHT) 
-        angle_y -= 10;
-      if (keyCode == LEFT)
         angle_y += 10;
+      if (keyCode == LEFT)
+        angle_y -= 10;
         
       //кнопки старта и финиша
       if(keyCode == ALT)
