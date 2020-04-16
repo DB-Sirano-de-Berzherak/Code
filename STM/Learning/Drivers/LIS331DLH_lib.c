@@ -353,42 +353,22 @@ int32_t lis331dlh_flag_data_ready_get(stmdev_ctx_t *ctx, uint8_t *val)
   return ret;
 }
 
-//                                  Блок функций для получения данных
+//                                          Блок функций для получения данных
 
-/**
-  * @brief  Linear acceleration output register. The value is expressed
-  *         as a 16-bit word in two’s complement.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  buff        buffer that stores data read
-  *
-  */
+//регистр линейного ускорения. Val представлено как 16-бтовое слово со знаком
+//в buffer хранятся данные для чтения
 int32_t lis331dlh_acceleration_raw_get(stmdev_ctx_t *ctx, uint8_t *buff)
 {
   int32_t ret;
+  //считать данные из buff в OUT_X_L, OUT_X_H....
   ret = lis331dlh_read_reg(ctx, LIS331DLH_OUT_X_L, buff, 6);
   return ret;
 }
 
-/**
-  * @}
-  *
-  */
+//                                          Блок общих полезных функций
 
-/**
-  * @defgroup    LIS331DLH_Common
-  * @brief       This section groups common useful functions.
-  * @{
-  *
-  */
-
-/**
-  * @brief  Device Who am I.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  buff        buffer that stores data read
-  *
-  */
+//Device "Who am I"
+//получтить id устройства 
 int32_t lis331dlh_device_id_get(stmdev_ctx_t *ctx, uint8_t *buff)
 {
   int32_t ret;
@@ -396,80 +376,62 @@ int32_t lis331dlh_device_id_get(stmdev_ctx_t *ctx, uint8_t *buff)
   return ret;
 }
 
-/**
-  * @brief  Reboot memory content. Reload the calibration parameters.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of boot in reg CTRL_REG2
-  *
-  */
+//перезагрузить содержимого памяти. Перезагрузить параметров калибровки
+//val значение бита boot (перезагрузка памяьи) в регистре CTRL_REG2
 int32_t lis331dlh_boot_set(stmdev_ctx_t *ctx, uint8_t val)
 {
   lis331dlh_ctrl_reg2_t ctrl_reg2;
   int32_t ret;
-
+  //считать структуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
   if(ret == 0) {
+    //присвоить в boot значение val
     ctrl_reg2.boot = val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2,
-                              (uint8_t*)&ctrl_reg2, 1);
+    //перезаписать структуру
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  Reboot memory content. Reload the calibration parameters.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of boot in reg CTRL_REG2
-  *
-  */
+//Узнать состояние бита boot (перезагрузка памяти)
 int32_t lis331dlh_boot_get(stmdev_ctx_t *ctx, uint8_t *val)
 {
   lis331dlh_ctrl_reg2_t ctrl_reg2;
   int32_t ret;
-
+  //считать структуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
+  //в val записать значение бита boot
   *val = ctrl_reg2.boot;
 
   return ret;
 }
 
-/**
-  * @brief  Linear acceleration sensor self-test enable.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of st in reg CTRL_REG4
-  *
-  */
+//включить самотестирование датчика ускорения
+//val изменяет значение бита st (самотестирование отключено/включено) в регистре CTRL_REG4
 int32_t lis331dlh_self_test_set(stmdev_ctx_t *ctx, lis331dlh_st_t val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
   int32_t ret;
-
+  //считать структуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
+  //если считалось правильно
   if(ret == 0) {
+    //записать в st значение val 
     ctrl_reg4.st = (uint8_t)val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4,
-                              (uint8_t*)&ctrl_reg4, 1);
+    //перезаписать структуру
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  Linear acceleration sensor self-test enable.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of st in reg CTRL_REG4
-  *
-  */
+//узнать состояние бита самотестрирования
 int32_t lis331dlh_self_test_get(stmdev_ctx_t *ctx, lis331dlh_st_t *val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
   int32_t ret;
-
+  //считать структуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
-
+  //в val записать состояние бита st
   switch (ctrl_reg4.st)
   {
     case LIS331DLH_ST_DISABLE:
