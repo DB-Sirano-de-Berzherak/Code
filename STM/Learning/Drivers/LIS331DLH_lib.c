@@ -154,27 +154,24 @@ int32_t lis331dlh_data_rate_set(stmdev_ctx_t *ctx, lis331dlh_dr_t val)
     ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG1, (uint8_t*)&ctrl_reg1, 1);
     //если считалось правильно
     if(ret == 0) {
+      //с помоощью xor (побитовое "и") расчитать режим pm
       ctrl_reg1.pm = (uint8_t)val & 0x07U;
+      //с помоощью xor (побитовое "и") расчитать режим dr, сдвинуться на 4 бита
       ctrl_reg1.dr = ( (uint8_t)val & 0x30U ) >> 4;
+      //перезаписать структуру
       ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG1, (uint8_t*)&ctrl_reg1, 1);
     }
     return ret;
 }
 
-/**
-  * @brief  Accelerometer data rate selection.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of dr in reg CTRL_REG1
-  *
-  */
+//выбор скорости передачи данных акселерометра
 int32_t lis331dlh_data_rate_get(stmdev_ctx_t *ctx, lis331dlh_dr_t *val)
 {
   lis331dlh_ctrl_reg1_t ctrl_reg1;
   int32_t ret;
 
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG1, (uint8_t*)&ctrl_reg1, 1);
-
+  //посчитать режим. В зависимости от результата присвоить val значенние частоты 
   switch ((ctrl_reg1.dr << 4) + ctrl_reg1.pm)
   {
     case LIS331DLH_ODR_OFF:
@@ -216,6 +213,7 @@ int32_t lis331dlh_data_rate_get(stmdev_ctx_t *ctx, lis331dlh_dr_t *val)
 }
 
 //Установка режима фильтра верхних частот
+
 //val изменяет значения hpm в регистре CTRL_REG2
 int32_t lis331dlh_reference_mode_set(stmdev_ctx_t *ctx, lis331dlh_hpm_t val)
 {
@@ -226,7 +224,7 @@ int32_t lis331dlh_reference_mode_set(stmdev_ctx_t *ctx, lis331dlh_hpm_t val)
     //если считалось правильно
     if(ret == 0) {
       //установить в hmp значение режима
-      //LIS331DLH_NORMAL_MODE или LIS331DLH_REF_MODE_ENABLE
+      //LIS331DLH_NORMAL_MODE (00 или 10) или LIS331DLH_REF_MODE_ENABLE (01)
       ctrl_reg2.hpm = (uint8_t)val;
       //обновить структуру
       ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
@@ -257,35 +255,31 @@ int32_t lis331dlh_reference_mode_get(stmdev_ctx_t *ctx, lis331dlh_hpm_t *val)
   return ret;
 }
 
-/**
-  * @brief  Accelerometer full-scale selection.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of fs in reg CTRL_REG4
-  *
-  */
+//установка диапаона значений акселерометра
 int32_t lis331dlh_full_scale_set(stmdev_ctx_t *ctx, lis331dlh_fs_t val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
   int32_t ret;
-
+  //считать структуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
+  //если структура считалась правильно
   if(ret == 0) {
-    ctrl_reg4.fs = (uint8_t)val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4,
-                              (uint8_t*)&ctrl_reg4, 1);
+    //записать в бит fs режим (00 - 2g, 01 - 4g, 11 - 8g) / LIS331DLH_ng
+    ctrl_reg4.fs = (uint8_t)val
+    //перезаписать структуру
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
   }
   return ret;
 }
 
-//выбор жиапазона хначений акселерометра
+//узнать диапазон значений акселерометра
 int32_t lis331dlh_full_scale_get(stmdev_ctx_t *ctx, lis331dlh_fs_t *val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
   int32_t ret;
-
+  //считать 
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
-
+  //записать в val значение бита fs регистра reg4
   switch (ctrl_reg4.fs)
   {
     case LIS331DLH_2g:
@@ -305,90 +299,61 @@ int32_t lis331dlh_full_scale_get(stmdev_ctx_t *ctx, lis331dlh_fs_t *val)
   return ret;
 }
 
-/**
-  * @brief  Block data update.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of bdu in reg CTRL_REG4
-  *
-  */
+//установка блокировки обновления данных
 int32_t lis331dlh_block_data_update_set(stmdev_ctx_t *ctx, uint8_t val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
   int32_t ret;
-
+  //считать структуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
   if(ret == 0) {
+    //записать в бит bdu значение val
+    //0 - можно менять, 1 - нельзя менять
     ctrl_reg4.bdu = val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4,
-                              (uint8_t*)&ctrl_reg4, 1);
+    //перезаписать структуру
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  Block data update.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of bdu in reg CTRL_REG4
-  *
-  */
+//Узнать состояние блокировки данных
 int32_t lis331dlh_block_data_update_get(stmdev_ctx_t *ctx, uint8_t *val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
   int32_t ret;
-
+  //считать структтуру
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
+  //в val записать значение бита bdu
   *val = ctrl_reg4.bdu;
 
   return ret;
 }
 
-/**
-  * @brief  The STATUS_REG register is read by the interface.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         registers STATUS_REG
-  *
-  */
-int32_t lis331dlh_status_reg_get(stmdev_ctx_t *ctx,
-                                 lis331dlh_status_reg_t *val)
+//регист STATUS_REG считывается интерфейсом
+//val состояние регистра STATUS_REG
+int32_t lis331dlh_status_reg_get(stmdev_ctx_t *ctx, lis331dlh_status_reg_t *val)
 {
   int32_t ret;
+  //считать структуру регистра
   ret = lis331dlh_read_reg(ctx, LIS331DLH_STATUS_REG, (uint8_t*) val, 1);
   return ret;
 }
 
-/**
-  * @brief  Accelerometer new data available.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of zyxda in reg STATUS_REG
-  *
-  */
+//Узнать доступны ли новые данные акселерометра
+//val бит zyxda регистра STATUS_REG
 int32_t lis331dlh_flag_data_ready_get(stmdev_ctx_t *ctx, uint8_t *val)
 {
   lis331dlh_status_reg_t status_reg;
   int32_t ret;
-
-  ret = lis331dlh_read_reg(ctx, LIS331DLH_STATUS_REG,
-                           (uint8_t*)&status_reg, 1);
+  //считать регистр
+  ret = lis331dlh_read_reg(ctx, LIS331DLH_STATUS_REG, (uint8_t*)&status_reg, 1);
+  //в val записать значение бита zyxda
   *val = status_reg.zyxda;
-
+ 
   return ret;
 }
 
-/**
-  * @}
-  *
-  */
-
-/**
-  * @defgroup    LIS331DLH_Data_Output
-  * @brief       This section groups all the data output functions.
-  * @{
-  *
-  */
+//                                  Блок функций для получения данных
 
 /**
   * @brief  Linear acceleration output register. The value is expressed
