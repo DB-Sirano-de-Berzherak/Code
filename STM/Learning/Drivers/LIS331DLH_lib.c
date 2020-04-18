@@ -451,13 +451,8 @@ int32_t lis331dlh_self_test_get(stmdev_ctx_t *ctx, lis331dlh_st_t *val)
   return ret;
 }
 
-/**
-  * @brief  Big/Little Endian Data selection.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of ble in reg CTRL_REG4
-  *
-  */
+//Установить порядок устанвки битов (от страршего к младшему или от младшего к старшему)
+//val значения бита ble в регистре CTRL_REG4
 int32_t lis331dlh_data_format_set(stmdev_ctx_t *ctx, lis331dlh_ble_t val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
@@ -472,13 +467,8 @@ int32_t lis331dlh_data_format_set(stmdev_ctx_t *ctx, lis331dlh_ble_t val)
   return ret;
 }
 
-/**
-  * @brief  Big/Little Endian Data selection.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of ble in reg CTRL_REG4
-  *
-  */
+//Узнать порядок устанвки битов (от страршего к младшему или от младшего к старшему)
+//val значения бита ble в регистре CTRL_REG4
 int32_t lis331dlh_data_format_get(stmdev_ctx_t *ctx, lis331dlh_ble_t *val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
@@ -502,26 +492,10 @@ int32_t lis331dlh_data_format_get(stmdev_ctx_t *ctx, lis331dlh_ble_t *val)
   return ret;
 }
 
-/**
-  * @}
-  *
-  */
+//                              Блок функций для настрйки фильтров
 
-/**
-  * @defgroup    LIS331DLH_Filters
-  * @brief       This section group all the functions concerning the
-  *              filters configuration.
-  * @{
-  *
-  */
-
-/**
-  * @brief  High pass filter cut-off frequency configuration.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of hpcf in reg CTRL_REG2
-  *
-  */
+//настройка фильтра верхних частот
+//val значение бита hpcf в регистре CTRL_REG2
 int32_t lis331dlh_hp_bandwidth_set(stmdev_ctx_t *ctx, lis331dlh_hpcf_t val)
 {
   lis331dlh_ctrl_reg2_t ctrl_reg2;
@@ -530,21 +504,13 @@ int32_t lis331dlh_hp_bandwidth_set(stmdev_ctx_t *ctx, lis331dlh_hpcf_t val)
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
   if(ret == 0) {
     ctrl_reg2.hpcf = (uint8_t)val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2,
-                              (uint8_t*)&ctrl_reg2, 1);
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  High pass filter cut-off frequency configuration.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of hpcf in reg CTRL_REG2
-  *
-  */
-int32_t lis331dlh_hp_bandwidth_get(stmdev_ctx_t *ctx,
-                                   lis331dlh_hpcf_t *val)
+//узнать настройки фильтра верхних частот
+int32_t lis331dlh_hp_bandwidth_get(stmdev_ctx_t *ctx, lis331dlh_hpcf_t *val)
 {
   lis331dlh_ctrl_reg2_t ctrl_reg2;
   int32_t ret;
@@ -573,13 +539,8 @@ int32_t lis331dlh_hp_bandwidth_get(stmdev_ctx_t *ctx,
   return ret;
 }
 
-/**
-  * @brief  Select High Pass filter path.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of hpen in reg CTRL_REG2
-  *
-  */
+//Установить профиль фильтра
+//val значение бита hpen в регистре CTRL_REG2
 int32_t lis331dlh_hp_path_set(stmdev_ctx_t *ctx, lis331dlh_hpen_t val)
 {
   lis331dlh_ctrl_reg2_t ctrl_reg2;
@@ -589,19 +550,12 @@ int32_t lis331dlh_hp_path_set(stmdev_ctx_t *ctx, lis331dlh_hpen_t val)
   if(ret == 0) {
     ctrl_reg2.hpen = (uint8_t)val & 0x03U;
     ctrl_reg2.fds = ((uint8_t)val & 0x04U) >> 2;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2,
-                              (uint8_t*)&ctrl_reg2, 1);
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG2, (uint8_t*)&ctrl_reg2, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  Select High Pass filter path.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of hpen in reg CTRL_REG2
-  *
-  */
+//Узнать профиль фильтра
 int32_t lis331dlh_hp_path_get(stmdev_ctx_t *ctx, lis331dlh_hpen_t *val)
 {
   lis331dlh_ctrl_reg2_t ctrl_reg2;
@@ -642,33 +596,23 @@ int32_t lis331dlh_hp_path_get(stmdev_ctx_t *ctx, lis331dlh_hpen_t *val)
   return ret;
 }
 
-/**
-  * @brief  Reading at this address zeroes instantaneously
-  *         the content of the internal high pass-filter.
-  *         If the high pass filter is enabled all three axes
-  *         are instantaneously set to 0g. This allows to
-  *         overcome the settling time of the high pass
-  *         filter.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  *
-  */
+/*чтение по этому адресу мгновенно обнуляется
+   содержание внутреннего фильтра верхних частот.
+   Если фильтр верхних частот включен, все три оси
+   мгновенно установлены на 0g. Это позволяет
+   преодолеть время установления высокого прохода
+   фильтр
+*/
 int32_t lis331dlh_hp_reset_get(stmdev_ctx_t *ctx)
 {
   uint8_t dummy;
   int32_t ret;
-  ret = lis331dlh_read_reg(ctx, LIS331DLH_HP_FILTER_RESET,
-                           (uint8_t*)&dummy, 1);
+  ret = lis331dlh_read_reg(ctx, LIS331DLH_HP_FILTER_RESET, (uint8_t*)&dummy, 1);
   return ret;
 }
 
-/**
-  * @brief  Reference value for high-pass filter.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of ref in reg REFERENCE
-  *
-  */
+//установить эталонное значение ускорения в регистре reference                  ??
+//val менияет значение ref в регистре REFERENCE
 int32_t lis331dlh_hp_reference_value_set(stmdev_ctx_t *ctx, uint8_t val)
 {
   int32_t ret;
@@ -676,13 +620,7 @@ int32_t lis331dlh_hp_reference_value_set(stmdev_ctx_t *ctx, uint8_t val)
   return ret;
 }
 
-/**
-  * @brief  Reference value for high-pass filter.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of ref in reg REFERENCE
-  *
-  */
+//узнать эталонное значение ускорения в регистре reference   
 int32_t lis331dlh_hp_reference_value_get(stmdev_ctx_t *ctx, uint8_t *val)
 {
   int32_t ret;
@@ -690,26 +628,10 @@ int32_t lis331dlh_hp_reference_value_get(stmdev_ctx_t *ctx, uint8_t *val)
   return ret;
 }
 
-/**
-  * @}
-  *
-  */
+//                                        Блок функций для последовательного управления интрерфйсами
 
-/**
-  * @defgroup    LIS331DLH_Serial_Interface
-  * @brief       This section groups all the functions concerning serial
-  *              interface management.
-  * @{
-  *
-  */
-
-/**
-  * @brief  SPI 3- or 4-wire interface.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of sim in reg CTRL_REG4
-  *
-  */
+//Установить SPI 3- или 4-проводной SPI интрерфейс
+//val значение бита sim в регистреCTRL_REG4
 int32_t lis331dlh_spi_mode_set(stmdev_ctx_t *ctx, lis331dlh_sim_t val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
@@ -718,19 +640,12 @@ int32_t lis331dlh_spi_mode_set(stmdev_ctx_t *ctx, lis331dlh_sim_t val)
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
   if(ret == 0) {
     ctrl_reg4.sim = (uint8_t)val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4,
-                              (uint8_t*)&ctrl_reg4, 1);
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG4, (uint8_t*)&ctrl_reg4, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  SPI 3- or 4-wire interface.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of sim in reg CTRL_REG4
-  *
-  */
+//узнать 3- или 4-проводной интрерфейс SPI
 int32_t lis331dlh_spi_mode_get(stmdev_ctx_t *ctx, lis331dlh_sim_t *val)
 {
   lis331dlh_ctrl_reg4_t ctrl_reg4;
@@ -754,28 +669,13 @@ int32_t lis331dlh_spi_mode_get(stmdev_ctx_t *ctx, lis331dlh_sim_t *val)
   return ret;
 }
 
-/**
-  * @}
-  *
-  */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
-  * @defgroup    LIS331DLH_Interrupt_Pins
-  * @brief       This section groups all the functions that manage
-  *              interrupt pins.
-  * @{
-  *
-  */
+//                                               Блок функция для прерывания контакта
 
-/**
-  * @brief  Data signal on INT 1 pad control bits.[set]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         change the values of i1_cfg in reg CTRL_REG3
-  *
-  */
-int32_t lis331dlh_pin_int1_route_set(stmdev_ctx_t *ctx,
-                                     lis331dlh_i1_cfg_t val)
+//установить контрольные биты сигнала данных на выходе первого прерывания
+//val значение бита i1_cfg в регистре CTRL_REG3
+int32_t lis331dlh_pin_int1_route_set(stmdev_ctx_t *ctx,lis331dlh_i1_cfg_t val)
 {
   lis331dlh_ctrl_reg3_t ctrl_reg3;
   int32_t ret;
@@ -783,19 +683,12 @@ int32_t lis331dlh_pin_int1_route_set(stmdev_ctx_t *ctx,
   ret = lis331dlh_read_reg(ctx, LIS331DLH_CTRL_REG3, (uint8_t*)&ctrl_reg3, 1);
   if(ret == 0) {
     ctrl_reg3.i1_cfg = (uint8_t)val;
-    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG3,
-                              (uint8_t*)&ctrl_reg3, 1);
+    ret = lis331dlh_write_reg(ctx, LIS331DLH_CTRL_REG3, (uint8_t*)&ctrl_reg3, 1);
   }
   return ret;
 }
 
-/**
-  * @brief  Data signal on INT 1 pad control bits.[get]
-  *
-  * @param  ctx         read / write interface definitions(ptr)
-  * @param  val         Get the values of i1_cfg in reg CTRL_REG3
-  *
-  */
+//узнать контрольные биты сигнала данных на выходе первого прерывания
 int32_t lis331dlh_pin_int1_route_get(stmdev_ctx_t *ctx,
                                      lis331dlh_i1_cfg_t *val)
 {
@@ -826,9 +719,7 @@ int32_t lis331dlh_pin_int1_route_get(stmdev_ctx_t *ctx,
   return ret;
 }
 
-/**
-  * @brief  Latch interrupt request on INT1_SRC register, with INT1_SRC
-  *         register cleared by reading INT1_SRC register.[set]
+//установка запрос на прерывание в регистре INT1_SRC с помощью INT1_SRC регистр очищается чтением регистра INT1_SRC
   *
   * @param  ctx         read / write interface definitions(ptr)
   * @param  val         change the values of lir1 in reg CTRL_REG3
