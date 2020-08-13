@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c1d9e03c-bfbf-4a2a-8626-f4196ab92ba1" name="Default Changelist" comment="" />
+    <list default="true" id="300d24c4-1a2e-4113-ad57-7be299f149e3" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,7 +10,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectId" id="1eOZOyd096GTZivwn1ePOwZExKW" />
+  <component name="ProjectId" id="1fdy4eynMpFYNvkGArHMY3zKQbZ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -22,8 +22,8 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
-    <configuration name="application" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="real-time-charts-with-flask-master" />
+    <configuration name="flask_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="rec_station_04.08" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -34,7 +34,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/application.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/flask_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -45,7 +45,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.application" />
+        <item itemvalue="Python.flask_test" />
       </list>
     </recent_temporary>
   </component>
@@ -66,38 +66,38 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="c1d9e03c-bfbf-4a2a-8626-f4196ab92ba1" name="Default Changelist" comment="" />
-      <created>1594194571438</created>
+      <changelist id="300d24c4-1a2e-4113-ad57-7be299f149e3" name="Default Changelist" comment="" />
+      <created>1596562074782</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1594194571438</updated>
+      <updated>1596562074782</updated>
     </task>
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="414" y="179" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1594194591257">
+    <state x="414" y="273" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1596562104289">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="414" y="179" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594194591257" />
-    <state width="1899" height="282" key="GridCell.Tab.0.bottom" timestamp="1594218450689">
+    <state x="414" y="273" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1596562104289" />
+    <state width="1882" height="279" key="GridCell.Tab.0.bottom" timestamp="1596578543473">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594218450689" />
-    <state width="1899" height="282" key="GridCell.Tab.0.center" timestamp="1594218450689">
+    <state width="1882" height="279" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1596578543473" />
+    <state width="1882" height="279" key="GridCell.Tab.0.center" timestamp="1596578543473">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="282" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594218450689" />
-    <state width="1899" height="282" key="GridCell.Tab.0.left" timestamp="1594218450689">
+    <state width="1882" height="279" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1596578543473" />
+    <state width="1882" height="279" key="GridCell.Tab.0.left" timestamp="1596578543473">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="282" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594218450689" />
-    <state width="1899" height="282" key="GridCell.Tab.0.right" timestamp="1594218450689">
+    <state width="1882" height="279" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1596578543473" />
+    <state width="1882" height="279" key="GridCell.Tab.0.right" timestamp="1596578543473">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="282" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594218450689" />
-    <state x="463" y="166" key="SettingsEditor" timestamp="1594194599557">
+    <state width="1882" height="279" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1596578543473" />
+    <state x="463" y="260" key="SettingsEditor" timestamp="1596562093869">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="463" y="166" key="SettingsEditor/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594194599557" />
+    <state x="463" y="260" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1596562093869" />
   </component>
 </project>

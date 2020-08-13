@@ -36,7 +36,7 @@ void setup(void)
   bno.setExtCrystalUse(true);
   
   myservo1.attach(6);
-  myservo2.attach(7);
+  myservo2.attach(7); //к сожалению, 7 и 8 порт приходится задействовать под NRF24L01P, поэтому эти два порта в будущем придётся поправить на иные
   myservo3.attach(8);
   myservo4.attach(9);
   
