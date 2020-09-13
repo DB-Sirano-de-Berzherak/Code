@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Приёмная станция</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+    <style>
+        .title {
+            text-align:  center;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <h1><font size="40" face="TimesNewRoman">Приёмная станция</font></h1>
+    </div>
+<div class="container">
+    <div class="card-body">
+        <canvas id="canvas" style="width: 700px; margin-left: -250px; margin-top: 0px"></canvas>
+        <canvas id="canvas2" style="width: 700px; margin-left: 550px; margin-top: -350px"></canvas>
+        <canvas id="canvas3" style="width: 700px; margin-left: -250px; margin-top: 50px"></canvas>
+        <canvas id="canvas4" style="width: 700px; margin-left: 550px; margin-top: -315px"></canvas>
+    </div>
+</div>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                            label: "Ускорение по оси x, g",
+                            backgroundColor: 'rgb(255, 0, 0)',
+                            borderColor: 'rgb(255, 0, 0)',
+                            data: [],
+                            fill: false,
+                            },
+                            {
+                            label: "Ускорение по оси y, g",
+                            backgroundColor: 'rgb(0, 0, 255)',
+                            borderColor: 'rgb(0, 0, 255)',
+                            data: [],
+                            fill: false,
+                            },
+                            {
+                            label: "Ускорение по оси z, g",
+                            backgroundColor: 'rgb(0, 255, 0)',
+                            borderColor: 'rgb(0, 255, 0)',
+                            data: [],
+                            fill: false,
+                            }],
+            },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: 'График ускорений'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Время, с'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Ускорение, g'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const config2 = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                            {
+                            label: "Высота, м",
+                            backgroundColor: 'rgb(99, 255, 132)',
+                            borderColor: 'rgb(99, 255, 132)',
+                            data: [],
+                            fill: false,
+                            }
+                          ],
+                   },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: 'График высоты'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                    position: 'nearest'
+                },
+                hover: {
+                    mode: 'average',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Время, с'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Высота, м'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const config3 = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                            {
+                            label: "Температура, м",
+                            backgroundColor: 'rgb(255, 0, 0)',
+                            borderColor: 'rgb(255, 0, 0)',
+                            data: [],
+                            fill: false,
+                            },
+                            {
+                            label: "Давление, Па",
+                            backgroundColor: 'rgb(0, 255, 0)',
+                            borderColor: 'rgb(0, 255, 0)',
+                            data: [],
+                            fill: false,
+                            }
+                          ],
+                   },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: 'График температуры, давления'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'average',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Время, с'
+                        }
+                    }],
+                    yAxes: [ {
+                      id: "Температура",
+                      display: true,
+                      position: 'left',
+                      scaleLabel : {
+                          display: true,
+
+                          labelString: 'Температура, С'
+
+                          }
+                      },
+                      {
+                      id: "Давление",
+                      display: true,
+                      position: 'right',
+                      scaleLabel : {
+                          display: true,
+                          labelString: 'Давление, Па'
+                          }
+                          }]
+                }
+            }
+        };
+
+        const config4 = {
+                type: 'bar',
+              data: {
+                labels: ["РН", "СОС", "САС", "Качество связи"],
+                datasets: [{
+                  label: 'Параметры, %',
+                  data: [],
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(46, 200, 140, 0.2)'
+                  ],
+                  borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(46, 200, 140, 0.2)'
+                  ],
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                responsive: false,
+                scales: {
+                  xAxes: [{
+                    ticks: {
+                      maxRotation: 90,
+                      minRotation: 80
+                    }
+                  }],
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true
+                    }
+                  }]
+                }
+              }
+
+            };
+
+
+        const context = document.getElementById('canvas').getContext('2d');
+        const context2 = document.getElementById('canvas2').getContext('2d');
+        const context3 = document.getElementById('canvas3').getContext('2d');
+        const context4 = document.getElementById('canvas4').getContext('2d');
+
+        const lineChart = new Chart(context, config);
+        const lineChart2 = new Chart(context2, config2);
+        const lineChart3 = new Chart(context3, config3);
+        const lineChart4 = new Chart(context4, config4);
+
+        const source = new EventSource("/chart-data");
+
+        source.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (config.data.labels.length === 20) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
+                config.data.datasets[1].data.shift();
+                config.data.datasets[2].data.shift();
+            }
+            config.data.labels.push(data.time);
+            config.data.datasets[0].data.push(data.value1);
+            config.data.datasets[1].data.push(data.value2);
+            config.data.datasets[2].data.push(data.value3);
+
+            if (config2.data.labels.length === 20) {
+                config2.data.labels.shift();
+                config2.data.datasets[0].data.shift();
+            }
+            config2.data.labels.push(data.time);
+            config2.data.datasets[0].data.push(data.value1);
+
+            if (config3.data.labels.length === 20) {
+                config3.data.labels.shift();
+
+                config3.data.datasets[0].data.shift();
+                config3.data.datasets[1].data.shift();
+            }
+
+            config3.data.labels.push(data.time);
+            config3.data.datasets[0].data.push(data.value3);
+            config3.data.datasets[1].data.push(data.value2);
+
+            if (config4.data.labels.length === 20) {
+                config4.data.labels.shift();
+                config4.data.datasets[0].data.shift();
+            }
+
+            config4.data.datasets[0].data = [data.value1, data.value2, data.value3, data.value4];
+
+
+            lineChart.update();
+            lineChart2.update();
+            lineChart3.update();
+            lineChart4.update();
+        }
+    });
+</script>
+</body>
+</html>
+
+
+
+
+'''if data[1] == '0.00':
+                json_data = json.dumps(
+                    {'num': data[0], 'type': 0, 'time': data[2],
+                     'temperature': data[3], 'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7]})
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'num': data[0], 'type': 1, 'time': data[2],
+                     'ax': data[3], 'ay': data[4], 'az': data[5], 'longitude': data[6], 'latitude': data[7]})
+            elif data[1] == '2.00':
+                # json_data = json.dumps(
+                #    {'num': data[0], 'type': 2, 'time': data[2],
+                #    'roll': 0, 'pitch': random.random() * 100})
+                yield render_template('Threejs.html', angleChange=0.01) '''
+
+            '''if data[1] == '0.00':
+                json_data = json.dumps(
+                    {'num': data[0], 'type': 0, 'time': data[2],
+                     'temperature': data[3], 'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7]})
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'num': data[0], 'type': 1, 'time': data[2],
+                     'ax': data[3], 'ay': data[4], 'az': data[5], 'longitude': data[6], 'latitude': data[7]})
+            elif data[1] == '2.00':
+                # json_data = json.dumps(
+                #    {'num': data[0], 'type': 2, 'time': data[2],
+                #    'roll': 0, 'pitch': random.random() * 100})'''
+
+
+
+
+
+
+
+
+
+
+
+        <canvas id="canvas4" style="height: 250px; margin-left: 500px; margin-top: -400px"></canvas>
+        <canvas id="canvas5" style="width: 400px; margin-left: 0px; margin-top: 25px"></canvas>
+        <canvas id="canvas6" style="width: 400px; margin-left: 100px; margin-top: 25px"></canvas>
+
+
+
+        '''
+@application.route('/chart-data')
+def chart_data():
+    def generate_random_data():
+        global pressure2, pack_prev, pack_now, lost_pack
+        while True:
+            data = rec()
+            if len(data) != 8:
+                continue
+            data = rec()
+            if data[-1] == -10000:
+                continue
+            pack_now = int(float(data[0]))
+            if data[1] == '0.00':
+                data[4] = float(data[4]) * 1000
+                if pressure2 == -1:
+                    delta_altitude = 0
+                else:
+                    delta_altitude = 18400 * (1 + 0.003665 * float(data[3])) * log10(float(data[4]) / pressure2)
+                json_data = json.dumps(
+                    {'type': 0, 'received':  zero(int(float(data[0])) - lost_pack), 'lost':  zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'temperature': data[3],
+                     'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7], 'altitude': delta_altitude})
+                pressure2 = data[4]
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'type': 1, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'ax': data[3],
+                     'ay': data[4], 'az': data[5], 'longitude': data[6], 'latitude': data[7]})
+            elif data[1] == '2.00':
+                json_data = json.dumps(
+                    {'type': 2, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'roll': data[3],
+                     'pitch': data[4], 'yaw': data[5]})
+
+            lost_pack += pack_now - pack_prev - 1
+            pack_prev = pack_now
+            yield f"data:{json_data}\n\n"
+
+    return Response(generate_random_data(), mimetype='text/event-stream')
+'''
+
+
+def rec():
+    arr = []
+    global pressure2
+    data = ser.readline()
+    data = data.decode('utf-8')
+    data = data.split()
+    line = ""
+    for i in data:
+        arr.append(i)
+        line += str(i) + " "
+    print(line, file=file)
+    if len(arr) == 8 and start == 0 and arr[1] == '0.00':
+        pressure2 = float(data[4]) * 1000
+    return arr
+
+
+
+    Plotly.newPlot('myDiv', [{
+          type: 'scatter3d',
+          mode: 'lines',
+          x: [0],
+          y: [0],
+          z: [0],
+          opacity: 1,
+          line: {
+            width: 6,
+            color: "black",
+            reversescale: false
+          }
+        }], {
+          height: 940
+        });
+
+
+
+
+
+
+
+
+
+
+        pressure2 = 1
+            data = [0, 0, 0, 0, 0, 0, 0, 0]
+            data[0] = pack_now
+            data[2] = random.random()
+            data[3] = random.random()
+            data[4] = random.random()
+            data[5] = random.randint(0, 1)
+            data[6] = round(random.random(), 5)
+            data[7] = round(random.random(), 5)
+            line = ""
+            line += str(data[0]) + " " + str(data[1]) + " " + str(data[2]) + " " + str(data[3]) + " " + str(data[4])
+            line += " " + str(data[5]) + " " + str(data[6]) + " " + str(data[7])
+            print(line, file=file)
+            cnt = ['0.00', '1.00', '2.00']
+            n = random.randint(0, 2)
+            data[1] = cnt[n]
+            if data[1] == '0.00':
+                delta_altitude = 18400 * (1 + 0.003665 * data[3]) * log10(data[4] / pressure2)
+                json_data = json.dumps(
+                    {'type': 0, 'received':  zero(data[0] - lost_pack), 'lost':  zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'temperature': data[3],
+                     'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7], 'altitude': delta_altitude})
+                pressure2 = data[4]
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'type': 1, 'received': zero(data[0] - lost_pack), 'lost': zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'ax': data[3],
+                     'ay': data[4], 'az': data[5], 'longitude': data[6], 'latitude': data[7]})
+            elif data[1] == '2.00':
+                pack_now += 1                           #убрать
+                json_data = json.dumps(
+                    {'type': 2, 'received': zero(data[0] - lost_pack), 'lost': zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'roll': data[3],
+                     'pitch': data[4], 'yaw': data[5]})
+
+            lost_pack += pack_now - pack_prev - 1
+            pack_prev = pack_now
+            pack_now += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import json
+import random
+import time
+from math import log10
+from datetime import datetime
+import serial
+
+from flask import Flask, Response, render_template
+
+application = Flask(__name__)
+random.seed()
+ser = serial.Serial('COM3', 115200)
+file = open('data_launch.txt', 'a')
+
+pack_prev = -1
+pack_now = 0
+lost_pack = 0
+pressure2 = -1
+
+start = 0
+
+t_prev = 0
+t_now = 0
+
+start_time = datetime.now()
+print(start_time)
+
+
+def rec():
+    arr = []
+    global pressure2
+    data = ser.readline()
+    data = data.decode('utf-8')
+    data = data.split()
+    line = ""
+    for i in data:
+        arr.append(i)
+        line += str(i) + " "
+    print(line, file=file)
+    if len(arr) == 8 and start == 0 and arr[1] == '0.00':
+        pressure2 = float(data[4]) * 1000
+    return arr
+
+
+def zero(num):
+    if num <= 9:
+        return "00000" + str(num)
+    elif num <= 99:
+        return "0000" + str(num)
+    elif num <= 999:
+        return "000" + str(num)
+    elif num <= 9999:
+        return "00" + str(num)
+    elif num <= 99999:
+        return "0" + str(num)
+    else:
+        return str(num)
+
+
+@application.route('/plots')
+def plots():
+    return render_template('index.html')
+
+@application.route('/chart-data')
+def chart_data():
+    def generate_random_data():
+        global pressure2, pack_prev, pack_now, lost_pack
+        pressure2 = 1000000
+        while True:
+            data = rec()
+            if len(data) != 8:
+                continue
+            if data[-1] == -10000:
+                continue
+            pack_now = int(float(data[0]))
+            if data[1] == '0.00':
+                data[4] = float(data[4]) * 1000
+                if pressure2 == -1:
+                    delta_altitude = 0
+                else:
+                    delta_altitude = 18400 * (1 + 0.003665 * float(data[3])) * log10(float(data[4]) / pressure2)
+                json_data = json.dumps(
+                    {'type': 0, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack),
+                     'time': datetime.now().strftime('%H:%M:%S'), 'temperature': data[3],
+                     'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7], 'altitude': delta_altitude})
+                pressure2 = data[4]
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'type': 1, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack),
+                     'time': datetime.now().strftime('%H:%M:%S'), 'ax': data[3],
+                     'ay': data[4], 'az': data[5], 'longitude': data[6], 'latitude': data[7]})
+            elif data[1] == '2.00':
+                json_data = json.dumps(
+                    {'type': 2, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack),
+                     'time': datetime.now().strftime('%H:%M:%S'), 'roll': data[3],
+                     'pitch': data[4], 'yaw': data[5]})
+
+            lost_pack += pack_now - pack_prev - 1
+            pack_prev = pack_now
+            yield f"data:{json_data}\n\n"
+
+    return Response(generate_random_data(), mimetype='text/event-stream')
+
+if __name__ == '__main__':
+    application.run(debug=True, threaded=True)
+
+
+
+
+
+
+import json
+import random
+import time
+from math import log10
+from datetime import datetime
+import serial
+
+from flask import Flask, Response, render_template
+
+application = Flask(__name__)
+random.seed()
+#ser = serial.Serial('COM3', 115200)
+file = open('data_launch.txt', 'a')
+
+pack_prev = -1
+pack_now = 0
+lost_pack = 0
+pressure2 = -1
+
+start = 0
+
+t_prev = 0
+t_now = 0
+
+start_time = datetime.now()
+print(start_time)
+
+
+'''def rec():
+    arr = []
+    global pressure2
+    data = ser.readline()
+    data = data.decode('utf-8')
+    data = data.split()
+    line = ""
+    for i in data:
+        arr.append(i)
+        line += str(i) + " "
+    print(line, file=file)
+    if len(arr) == 8 and start == 0 and arr[1] == '0.00':
+        pressure2 = float(data[4]) * 1000
+    return arr'''
+
+
+def zero(num):
+    if num <= 9:
+        return "00000" + str(num)
+    elif num <= 99:
+        return "0000" + str(num)
+    elif num <= 999:
+        return "000" + str(num)
+    elif num <= 9999:
+        return "00" + str(num)
+    elif num <= 99999:
+        return "0" + str(num)
+    else:
+        return str(num)
+
+
+@application.route('/plots')
+def plots():
+    return render_template('index.html')
+
+@application.route('/chart-data')
+def chart_data():
+    def generate_random_data():
+        global pressure2, pack_prev, pack_now, lost_pack
+        pressure2 = 1000000
+        while True:
+            pressure2 = 1
+            data = [0, 0, 0, 0, 0, 0, 0, 0]
+            data[0] = pack_now
+            data[2] = random.random()
+            data[3] = random.random()
+            data[4] = random.random()
+            data[5] = random.randint(0, 1)
+            data[6] = round(random.random(), 5)
+            data[7] = round(random.random(), 5)
+            line = ""
+            line += str(data[0]) + " " + str(data[1]) + " " + str(data[2]) + " " + str(data[3]) + " " + str(data[4])
+            line += " " + str(data[5]) + " " + str(data[6]) + " " + str(data[7])
+            print(line, file=file)
+            cnt = ['0.00', '1.00', '2.00']
+            n = random.randint(0, 2)
+            data[1] = cnt[n]
+            if data[1] == '0.00':
+                delta_altitude = 18400 * (1 + 0.003665 * data[3]) * log10(data[4] / pressure2)
+                json_data = json.dumps(
+                    {'type': 0, 'received': zero(data[0] - lost_pack), 'lost': zero(lost_pack),
+                     'time': datetime.now().strftime('%H:%M:%S'), 'temperature': data[3],
+                     'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7], 'altitude': delta_altitude})
+                pressure2 = data[4]
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'type': 1, 'received': zero(data[0] - lost_pack), 'lost': zero(lost_pack),
+                     'time': datetime.now().strftime('%H:%M:%S'), 'ax': data[3],
+                     'ay': data[4], 'az': data[5], 'longitude': data[6], 'latitude': data[7]})
+            elif data[1] == '2.00':
+                pack_now += 1  # убрать
+                json_data = json.dumps(
+                    {'type': 2, 'received': zero(data[0] - lost_pack), 'lost': zero(lost_pack),
+                     'time': datetime.now().strftime('%H:%M:%S'), 'roll': data[3],
+                     'pitch': data[4], 'yaw': data[5]})
+
+            lost_pack += pack_now - pack_prev - 1
+            pack_prev = pack_now
+            pack_now += 1
+
+    return Response(generate_random_data(), mimetype='text/event-stream')
+
+if __name__ == '__main__':
+    application.run(debug=True, threaded=True)
+
+
+window.requestAnimFrame = (function(callback){
+        return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback){
+            window.setTimeout(callback, 1000 / 60);
+        };
+    })();
+
+
+
+import json
+import random
+import time
+from math import log10
+from datetime import datetime
+import serial
+
+from flask import Flask, Response, render_template
+
+application = Flask(__name__)
+random.seed()
+#ser = serial.Serial('COM3', 115200)
+file = open('data_launch.txt', 'a')
+
+pack_prev = -1
+pack_now = 0
+lost_pack = 0
+pressure2 = 100000
+start = 0
+in_rocket = False
+take_off = False
+start_time = datetime.now()
+cnt = 0
+
+
+def rec():
+    arr = []
+    global pressure2, start, in_rocket, take_off, cnt
+    data = ser.readline()
+    data = data.decode('utf-8')
+    data = data.split()
+    line = ""
+    for i in data:
+        arr.append(i)
+        line += str(i) + " "
+    print(line, file=file)
+    return arr
+
+
+def zero(num):
+    if num <= 9:
+        return "0000" + str(num)
+    elif num <= 99:
+        return "000" + str(num)
+    elif num <= 999:
+        return "00" + str(num)
+    elif num <= 9999:
+        return "0" + str(num)
+    else:
+        return str(num)
+
+
+@application.route('/')
+def plots():
+    return render_template('index.html')
+
+
+@application.route('/chart-data')
+def chart_data():
+    def generate_random_data():
+        global pressure2, pack_prev, pack_now, lost_pack
+        while True:
+            #data = rec()
+            data = [0,0,0,0,0,0,0,0]
+            if len(data) != 8:
+                continue
+            pack_now = int(float(data[0]))
+            if data[1] == '0.00':
+                data[4] = float(data[4]) * 1000
+                if pressure2 == -1:
+                    delta_altitude = 0
+                else:
+                    delta_altitude = 18400 * (1 + 0.003665 * float(data[3])) * log10(float(data[4]) / pressure2)
+                json_data = json.dumps(
+                    {'type': 0, 'received':  zero(int(float(data[0])) - lost_pack), 'lost':  zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'temperature': data[3],
+                     'pressure': data[4], 'PH': data[5], 'COC': data[6], 'CAC': data[7], 'altitude': delta_altitude})
+                pressure2 = data[4]
+            elif data[1] == '1.00':
+                json_data = json.dumps(
+                    {'type': 1, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'ax': data[3],
+                     'ay': data[4], 'az': data[5], 'longitude': float(data[6]) / 1000000, 'latitude': float(data[7]) / 1000000})
+            elif data[1] == '2.00':
+                json_data = json.dumps(
+                    {'type': 2, 'received': zero(int(float(data[0])) - lost_pack), 'lost': zero(lost_pack), 'time': datetime.now().strftime('%H:%M:%S'), 'roll': data[3],
+                     'pitch': data[4], 'yaw': data[5]})
+
+            lost_pack += pack_now - pack_prev - 1
+            pack_prev = pack_now
+            yield f"data:{json_data}\n\n"
+
+    return Response(generate_random_data(), mimetype='text/event-stream')
+
+if __name__ == '__main__':
+    application.run(debug=True, threaded=True)
+
+

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Приёмная станция</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card-body">
+        <canvas id="canvas" style="width: 600px; margin-left: -200px; margin-top: 0px"></canvas>
+        <canvas id="canvas2" style="width: 600px; margin-left: 450px; margin-top: -300px"></canvas>
+        <canvas id="canvas3" style="width: 600px; margin-left: -200px; margin-top: 50px"></canvas>
+        <canvas id="canvas7" style="width: 600px; height: 300px; margin-left: 450px; margin-top: -300px"></canvas>
+    </div>
+</div>
+<div id="myDiv" style="margin-left: 600px; margin-top: -50px"></div>
+<canvas id="c" style="margin-top: -700px; margin-left: 100px"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r78/three.min.js"></script>
+<script src="http://threejs.org/examples/js/loaders/STLLoader.js"></script>
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script>
+    window.requestAnimFrame = (function(callback){
+        return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback){
+            window.setTimeout(callback, 1000 / 60);
+        };
+    })();
+
+
+    $(document).ready(function () {
+        var cnt = 0;
+        var x_arr = [0];
+		var y_arr = [0];
+		var z_arr = [0];
+
+		Plotly.newPlot('myDiv', [{
+			type: 'scatter3d',
+			mode: 'lines',
+			x: x_arr,
+			y: y_arr,
+			z: z_arr,
+			opacity: 1,
+			line: {
+				width: 6,
+				color: "black",
+				reversescale: false}
+			}], {
+			height: 700,
+		});
+
+
+        const config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                            label: "Ускорение по оси x, g",
+                            backgroundColor: '#990000',
+                            borderColor: '#990000',
+                            lineTension: 0,
+                            data: [],
+                            fill: false,
+                            },
+                            {
+                            label: "Ускорение по оси y, g",
+                            backgroundColor: '#003366',
+                            borderColor: '#003366',
+                            lineTension: 0,
+                            data: [],
+                            fill: false,
+                            },
+                            {
+                            label: "Ускорение по оси z, g",
+                            backgroundColor: '#336600',
+                            borderColor: '#336600',
+                            lineTension: 0,
+                            data: [],
+                            fill: false,
+                            }],
+            },
+            options: {
+                responsive: false,
+                bezierCurve: false,
+                title: {
+                    display: true,
+                    text: 'График ускорений'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Время, с'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Ускорение, g'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const config2 = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                            {
+                            label: "Высота, м",
+                            backgroundColor: '#336600',
+                            borderColor: '#336600',
+                            lineTension: 0,
+                            data: [],
+                            fill: false,
+                            }
+                          ],
+                   },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: 'График высоты'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                    position: 'nearest'
+                },
+                hover: {
+                    mode: 'average',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Время, с'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Высота, м'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const config3 = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                            {
+                            label: "Температура",
+                            backgroundColor: '#990000',
+                            borderColor: '#990000',
+                            lineTension: 0,
+                            data: [],
+                            fill: false,
+                            yAxisID: "Температура"
+                            },
+                            {
+                            label: "Давление",
+                            backgroundColor: '#336600',
+                            borderColor: '#336600',
+                            lineTension: 0,
+                            data: [],
+                            fill: false,
+                            yAxisID: "Давление"
+                            }
+                          ],
+                   },
+            options: {
+                responsive: false,
+                title: {
+                    display: true,
+                    text: 'График температуры, давления'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Время, с'
+                        }
+                    }],
+                    yAxes: [ {
+                      id: "Температура",
+                      display: true,
+                      position: 'left',
+                      scaleLabel : {
+                          display: true,
+                          labelString: 'Температура, С'
+                          }
+                      },
+                      {
+                      id: "Давление",
+                      display: true,
+                      position: 'right',
+                      scaleLabel : {
+                          display: true,
+                          labelString: 'Давление, Па'
+                          }
+                          }
+                      ]
+                }
+            }
+        };
+
+        var x = 0;
+        var y = 0;
+        var z = 0;
+        const context = document.getElementById('canvas').getContext('2d');
+        const context2 = document.getElementById('canvas2').getContext('2d');
+        const context3 = document.getElementById('canvas3').getContext('2d');
+        const context7 = document.getElementById('canvas7').getContext('2d');
+
+        context7.strokeStyle = "black";
+        context7.strokeRect(0, 84, 150, 42);
+        context7.strokeRect(150, 84, 150, 42);
+
+
+        const lineChart = new Chart(context, config);
+        const lineChart2 = new Chart(context2, config2);
+        const lineChart3 = new Chart(context3, config3);
+        var altitude = 0;
+
+        const source = new EventSource("/chart-data");
+
+        source.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            if(data.type == 1) {
+                context7.clearRect(1, 1, 110, 40);
+                context7.clearRect(110, 1, 189, 40);
+                context7.strokeStyle = "black";
+                context7.strokeRect(0, 0, 110, 42);
+                context7.strokeRect(110, 0, 190, 42);
+                context7.fillStyle = "black";
+                context7.font = "18px Arial";
+                context7.fillText('Время', 27, 17);
+                context7.fillText(data.time, 20, 37);
+                context7.fillText('Получено/потеряно', 120, 17);
+                context7.fillText('/', 200, 37);
+                context7.fillText(data.received, 150, 37);
+                context7.fillText(data.lost, 210, 37);
+
+                context7.font = "18px Arial";
+                context7.clearRect(1, 88, 140, 33);
+                context7.clearRect(155, 88, 140, 33);
+                context7.fillText('Долгота', 40, 100);
+                context7.fillText(data.longitude, 40, 120);
+                context7.fillText('Широта', 190, 100);
+                context7.fillText(data.latitude, 190, 120);
+
+                 if (config.data.labels.length === 200) {
+                    config.data.labels.shift();
+                    config.data.datasets[0].data.shift();
+                    config.data.datasets[1].data.shift();
+                    config.data.datasets[2].data.shift();
+                }
+                if (config.data.labels.length === 200) {
+                    config.data.labels.clear();
+                    config.data.datasets[0].data.clear();
+                    config.data.datasets[1].data.clear();
+                    config.data.datasets[2].data.clear();
+                }
+                config.data.labels.push(data.time);
+                config.data.datasets[0].data.push(data.ax);
+                config.data.datasets[1].data.push(data.ay);
+                config.data.datasets[2].data.push(data.az);
+
+                lineChart.update();
+                x_arr.push(data.sx);
+                y_arr.push(data.sy);
+                z_arr.push(data.sz);
+
+                var data_update = {
+                    x: [x_arr],
+                    y: [y_arr],
+                    z: [z_arr],
+                }
+
+
+                cnt += 1;
+                if(cnt == 10) {
+                    if(Number(data.draw) == 1) {
+                        Plotly.update(myDiv, data_update);
+                    }
+                    cnt = 0;
+                }
+
+                x = 0;
+                y = 0;
+                z = 0;
+            }
+
+            if(data.type == 2){
+                context7.clearRect(1, 1, 109, 40);
+                context7.clearRect(111, 1, 188, 40);
+                context7.fillStyle = "black";
+                context7.font = "18px Arial";
+                context7.fillText('Время', 27, 17);
+                context7.fillText(data.time, 20, 37);
+                context7.fillText('Получено/потеряно', 120, 17);
+                context7.fillText('/', 200, 37);
+                context7.fillText(data.received, 150, 37);
+                context7.fillText(data.lost, 210, 37);
+
+                x = Number(data.roll);
+                y = Number(data.yaw);
+                z = Number(data.pitch);
+
+            }
+
+            if(data.type == 0)
+            {
+                context7.clearRect(1, 1, 109, 40);
+                context7.clearRect(111, 1, 188, 40);
+                context7.fillStyle = "black";
+                context7.font = "18px Arial";
+                context7.fillText('Время', 27, 17);
+                context7.fillText(data.time, 20, 37);
+                context7.fillText('Получено/потеряно', 120, 17);
+                context7.fillText('/', 200, 37);
+                context7.fillText(data.received, 150, 37);
+                context7.fillText(data.lost, 210, 37);
+                context7.font = "28px Arial";
+                if(data.PH == 1) {
+                    context7.fillStyle = "#336600";
+                }
+                else{
+                    context7.fillStyle = "#990000";
+                }
+                context7.fillRect(1, 42, 100, 42);
+                context7.fillStyle = "white";
+                context7.fillText('РН', 32, 72);
+                if(data.COC == 1) {
+                    context7.fillStyle = "#336600";
+                }
+                else{
+                    context7.fillStyle = "#990000";
+                }
+                context7.fillRect(100, 42, 100, 42);
+                context7.fillStyle = "white";
+                context7.fillText('СОС', 120, 72);
+                if(data.CAC == 1) {
+                    context7.fillStyle = "#336600";
+                }
+                else{
+                    context7.fillStyle = "#990000";
+                }
+                context7.fillRect(200, 42, 100, 42);
+                context7.fillStyle = "white";
+                context7.fillText('САС', 220, 72);
+
+                context7.strokeRect(0, 42, 100, 42);
+                context7.strokeRect(100, 42, 100, 42);
+                context7.strokeRect(200, 42, 100, 42);
+
+                altitude += data.altitude
+
+                if (config2.data.labels.length === 50) {
+                    config2.data.labels.shift();
+                    config2.data.datasets[0].data.shift();
+                }
+                config2.data.labels.push(data.time);
+                config2.data.datasets[0].data.push(altitude);
+
+                if (config3.data.labels.length === 50) {
+                    config3.data.labels.shift();
+                    config3.data.datasets[0].data.shift();
+                    config3.data.datasets[1].data.shift();
+                }
+
+                config3.data.labels.push(data.time);
+                config3.data.datasets[0].data.push(data.temperature);
+                config3.data.datasets[1].data.push(data.pressure);
+
+                lineChart3.update();
+                lineChart2.update();
+
+                x = 0;
+                y = 0;
+                z = 0;
+            }
+        }
+
+    function animate(lastTime, angularSpeed, three){
+                // update
+                var date = new Date();
+                var time = date.getTime();
+                var timeDiff = time - lastTime;
+                var angleChange = angularSpeed * timeDiff * 2 * Math.PI / 1000;
+
+                if(x != 0) {
+                    three.cylinder.rotation.x = x;
+                }
+                if(y != 0) {
+                    three.cylinder.rotation.y = y;
+                }
+                if(z != 0) {
+                    three.cylinder.rotation.z = z;
+                }
+
+                // render
+                three.renderer.render(three.scene, three.camera);
+
+                // request new frame
+                requestAnimFrame(function(){
+                    animate(lastTime, angularSpeed, three);
+                });
+            }
+
+            window.onload = function(){
+                var angularSpeed = 0.2; // revolutions per second
+                var lastTime = 0;
+                const canvas = document.querySelector('#c');
+                var renderer = new THREE.WebGLRenderer({canvas});
+                renderer.setSize(800, 880);
+                document.body.appendChild(renderer.domElement);
+
+                // camera
+                var camera = new THREE.PerspectiveCamera(45, 80 / 80, 1, 1000);
+                camera.position.z = 700;
+
+                // scene
+                var scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xffffff);
+
+               const loader = new THREE.TextureLoader();
+               var material = new THREE.MeshPhongMaterial({ map: loader.load('https://sun1-23.userapi.com/gywiIxQFHySHJFinSwiF9DLlgNu5-5Atl2rOCw/umghg7eBRgw.jpg') });
+
+               var cylinder = new THREE.Mesh(new THREE.CylinderGeometry(80, 80, 320, 50, 50, false, 0), material);
+               cylinder.overdraw = true;
+
+               scene.add(cylinder);
+               cylinder.position.y = 20;
+
+
+                // add subtle ambient lighting
+                var ambientLight = new THREE.AmbientLight(0x555555);
+                scene.add(ambientLight);
+
+                // add directional light source
+                var directionalLight = new THREE.DirectionalLight(0xffffff);
+                directionalLight.position.set(1, 1, 1).normalize();
+                scene.add(directionalLight);
+
+                // create wrapper object that contains three.js objects
+                var three = {
+                    renderer: renderer,
+                    camera: camera,
+                    scene: scene,
+                    cylinder: cylinder
+                };
+
+                animate(lastTime, angularSpeed, three);
+           };
+        });
+</script>
+</body>
+</html>

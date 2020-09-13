@@ -1,0 +1,47 @@
+<head>
+	<!-- Load plotly.js into the DOM -->
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+</head>
+
+<body>
+	<div id='myDiv' style="margin-left: 800px"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <script>
+		var x = [0];
+		var y = [0];
+		var z = [0];
+
+		Plotly.newPlot('myDiv', [{
+			type: 'scatter3d',
+			mode: 'lines',
+			x: x,
+			y: y,
+			z: z,
+			opacity: 1,
+			line: {
+				width: 6,
+				color: "black",
+				reversescale: false}
+			}], {
+			height: 840,
+		});
+
+		source.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			x.push(data.x);
+			y.push(data.y);
+			z.push(data.z);
+
+			var data_update = {
+				x: [x],
+				y: [y],
+				z: [z],
+			};
+
+			var layout_update = {
+				title: 'some new title',
+			};
+
+			Plotly.update(myDiv, data_update, layout_update);
+		}
+    </script>
+</body>
